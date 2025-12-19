@@ -392,10 +392,10 @@ public class OpenAiEndpointProvider : BaseEndpointProvider, IEndpointProvider, I
                     
                     choice.Delta.Role = ChatMessageRoles.Assistant;
 
-                    if (choice.Delta.ReasoningContent is not null)
+                    if (choice.Delta.ReasoningTokens is not null)
                     {
                         reasoningBuilder ??= new StringBuilder();
-                        reasoningBuilder.Append(choice.Delta.ReasoningContent);
+                        reasoningBuilder.Append(choice.Delta.ReasoningTokens);
                     }
 
                     if (choice.Delta.Content is not null)
