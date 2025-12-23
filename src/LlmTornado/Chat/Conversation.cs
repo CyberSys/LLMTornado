@@ -945,11 +945,6 @@ public class Conversation
 
         MostRecentApiResult = chatResult;
 
-        if (chatResult.Choices is null or { Count: 0 })
-        {
-            return new RestDataOrException<ChatRichResponse>(new Exception("The service returned no choices"));
-        }
-
         ChatRichResponse response = await HandleResponseRich(req, chatResult, functionCallHandler, null).ConfigureAwait(false);
         return new RestDataOrException<ChatRichResponse>(response, httpResult);
     }

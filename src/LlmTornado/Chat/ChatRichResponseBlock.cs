@@ -76,22 +76,43 @@ public class ChatRichResponse
     /// <summary>
     /// Extension information if the vendor used returns any.
     /// </summary>
+    [JsonIgnore]
     public ChatResponseVendorExtensions? VendorExtensions => Result?.VendorExtensions;
 
     /// <summary>
     /// The usage statistics for the interaction.
     /// </summary>
+    [JsonIgnore]
     public ChatUsage? Usage => Result?.Usage;
     
     /// <summary>
     /// Raw response from the API.
     /// </summary>
+    [JsonIgnore]
     public string? RawResponse => Result?.RawResponse;
 
     /// <summary>
     /// Reason why the response ended.    
     /// </summary>
-    public ChatMessageFinishReasons FinishReason => Result?.Choices?.FirstOrDefault()?.FinishReason ?? ChatMessageFinishReasons.Unknown;
+    [JsonIgnore]
+    public ChatMessageFinishReasons FinishReason => Result?.Choices?.FirstOrDefault()?.FinishReason ?? (Result?.PromptFeedback?.BlockReason is not null ? Result.PromptFeedback.BlockReason switch
+    {
+        ChatResultPromptFeedbackBlockReasons.Safety => ChatMessageFinishReasons.Safety,
+        ChatResultPromptFeedbackBlockReasons.Blocklist => ChatMessageFinishReasons.Blocklist,
+        _ => ChatMessageFinishReasons.ContentFilter
+    } : ChatMessageFinishReasons.Unknown);
+
+    /// <summary>
+    /// Whether the response was refused.
+    /// </summary>
+    [JsonIgnore]
+    public bool Refused => Result?.Choices?.FirstOrDefault()?.Message?.Refusal is not null || Result?.PromptFeedback?.BlockReason is not null;
+
+    /// <summary>
+    /// Whether 
+    /// </summary>
+    [JsonIgnore]
+    public string? RefusalReason => Result?.Choices?.FirstOrDefault()?.Message?.Refusal ?? Result?.PromptFeedback?.BlockReason?.ToString();
     
     /// <summary>
     /// The full result.
@@ -131,6 +152,11 @@ public class ChatRichResponse
     /// </summary>
     public override string ToString()
     {
+        if (Refused)
+        {
+            return $"[refused:{RefusalReason}]";
+        }
+        
         if (Blocks is null || Blocks.Count is 0)
         {
             return "[tornado:empty]";

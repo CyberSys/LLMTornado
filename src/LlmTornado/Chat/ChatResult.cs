@@ -73,6 +73,12 @@ public class ChatResult : ApiResultBase
 	public string? RawResponse { get; set; }
 	
 	/// <summary>
+	/// A feedback on the prompt, if any. Currently supported only by Google.
+	/// </summary>
+	[JsonIgnore]
+	public ChatResultPromptFeedback? PromptFeedback { get; set; }
+	
+	/// <summary>
 	///		Features supported only by a specific/few providers with no shared equivalent.
 	/// </summary>
 	[JsonIgnore]
@@ -104,6 +110,136 @@ public class ChatResult : ApiResultBase
 			_ => JsonConvert.DeserializeObject<ChatResult>(jsonData)
 		};
 	}
+}
+
+/// <summary>
+/// A feedback on the input prompt, if any.
+/// </summary>
+public class ChatResultPromptFeedback
+{
+	/// <summary>
+	/// A reason why the prompt was blocked, if any.
+	/// </summary>
+	public ChatResultPromptFeedbackBlockReasons? BlockReason { get; set; }
+	
+	/// <summary>
+	/// A list of safety ratings.
+	/// </summary>
+	public List<ChatResultPromptFeedbackSafetyRating>? SafetyRatings { get; set; }
+	
+	/// <summary>
+	/// Native details.
+	/// </summary>
+	public object? NativeObject { get; set; }
+}
+
+/// <summary>
+/// A safety rating in a category.
+/// </summary>
+public class ChatResultPromptFeedbackSafetyRating
+{
+	/// <summary>
+	/// Whether the content was blocked in this category.
+	/// </summary>
+	public bool Blocked { get; set; }
+
+	/// <summary>
+	/// Probability of harm.
+	/// </summary>
+	public ChatResultPromptFeedbackSafetyRatingHarmProbability Probability { get; set; } = ChatResultPromptFeedbackSafetyRatingHarmProbability.Unknown;
+
+	/// <summary>
+	/// Harm category.
+	/// </summary>
+	public ChatResultPromptFeedbackSafetyRatingHarmCategory Category { get; set; } = ChatResultPromptFeedbackSafetyRatingHarmCategory.Unknown;
+}
+
+/// <summary>
+/// Harm categories.
+/// </summary>
+public enum ChatResultPromptFeedbackSafetyRatingHarmCategory
+{
+	/// <summary>
+	/// Category was not set.
+	/// </summary>
+	Unknown,
+	
+	/// <summary>
+	/// Harassment content.
+	/// </summary>
+	Harassment,
+	
+	/// <summary>
+	/// Hate speech and content.
+	/// </summary>
+	HateSpeech,
+	
+	/// <summary>
+	/// Sexually explicit content.
+	/// </summary>
+	SexuallyExplicit,
+	
+	/// <summary>
+	/// Dangerous content.
+	/// </summary>
+	Dangerous
+}
+
+/// <summary>
+/// Probability of harm.
+/// </summary>
+public enum ChatResultPromptFeedbackSafetyRatingHarmProbability
+{
+	/// <summary>
+	/// Probability was not set.
+	/// </summary>
+	Unknown,
+	
+	/// <summary>
+	/// Content has a negligible chance of being unsafe.
+	/// </summary>
+	Negligible,
+	
+	/// <summary>
+	/// Content has a low chance of being unsafe.
+	/// </summary>
+	Low,
+	
+	/// <summary>
+	/// Content has a medium chance of being unsafe.
+	/// </summary>
+	Medium,
+	
+	/// <summary>
+	/// Content has a high chance of being unsafe.
+	/// </summary>
+	High
+}
+
+/// <summary>
+/// Reasons why prompt was blocked.
+/// </summary>
+public enum ChatResultPromptFeedbackBlockReasons
+{
+	/// <summary>
+	/// Prompt was blocked due to safety reasons.
+	/// </summary>
+	Safety,
+	
+	/// <summary>
+	/// rompt was blocked due to the terms which are included from the terminology blocklist.
+	/// </summary>
+	Blocklist,
+	
+	/// <summary>
+	/// Prompt was blocked due to prohibited content.
+	/// </summary>
+	ProhibitedContent,
+	
+	/// <summary>
+	/// Prompt was blocked due to unknown reasons.
+	/// </summary>
+	Other
 }
 
 /// <summary>

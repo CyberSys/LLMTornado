@@ -440,7 +440,12 @@ public enum ChatMessageFinishReasons
     /// <summary>
     /// Response hit context window limit before max_tokens
     /// </summary>
-    ContextWindowExceeded
+    ContextWindowExceeded,
+    
+    /// <summary>
+    /// Prompt was blocked due to safety reasons.
+    /// </summary>
+    Safety
 }
 
 /// <summary>

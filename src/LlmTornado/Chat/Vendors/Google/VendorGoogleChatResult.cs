@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using LlmTornado.Chat;
 using LlmTornado.Chat.Models;
 using LlmTornado.Chat.Vendors.Google;
@@ -108,6 +109,42 @@ internal class VendorGoogleChatResult : VendorChatResult
             Usage = new ChatUsage(Meta),
             ProcessingTime = TimeSpan.Zero
         };
+
+        if (PromptFeedback is not null)
+        {
+            result.PromptFeedback = new ChatResultPromptFeedback
+            {
+                BlockReason = PromptFeedback.BlockReason switch
+                {
+                    null => null,
+                    "SAFETY" => ChatResultPromptFeedbackBlockReasons.Safety,
+                    "BLOCKLIST" => ChatResultPromptFeedbackBlockReasons.Blocklist,
+                    "PROHIBITED_CONTENT" => ChatResultPromptFeedbackBlockReasons.ProhibitedContent,
+                    _ => ChatResultPromptFeedbackBlockReasons.Other
+                },
+                SafetyRatings = PromptFeedback.SafetyRatings?.Select(x => new ChatResultPromptFeedbackSafetyRating
+                {
+                    Blocked = x.Blocked,
+                    Probability = x.Probability switch
+                    {
+                        "NEGLIGIBLE" => ChatResultPromptFeedbackSafetyRatingHarmProbability.Negligible,
+                        "LOW" => ChatResultPromptFeedbackSafetyRatingHarmProbability.Low,
+                        "MEDIUM" => ChatResultPromptFeedbackSafetyRatingHarmProbability.Medium,
+                        "HIGH" => ChatResultPromptFeedbackSafetyRatingHarmProbability.High,
+                        _ => ChatResultPromptFeedbackSafetyRatingHarmProbability.Unknown
+                    },
+                    Category = x.Category switch
+                    {
+                        "HARM_CATEGORY_HARASSMENT" => ChatResultPromptFeedbackSafetyRatingHarmCategory.Harassment,
+                        "HARM_CATEGORY_HATE_SPEECH" => ChatResultPromptFeedbackSafetyRatingHarmCategory.HateSpeech,
+                        "HARM_CATEGORY_SEXUALLY_EXPLICIT" => ChatResultPromptFeedbackSafetyRatingHarmCategory.SexuallyExplicit,
+                        "HARM_CATEGORY_DANGEROUS_CONTENT" => ChatResultPromptFeedbackSafetyRatingHarmCategory.Dangerous,
+                        _ => ChatResultPromptFeedbackSafetyRatingHarmCategory.Unknown
+                    }
+                }).ToList(),
+                NativeObject = PromptFeedback
+            };
+        }
 
         VendorGoogleChatRequest? request = null;
         

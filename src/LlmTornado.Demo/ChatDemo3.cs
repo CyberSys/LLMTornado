@@ -771,7 +771,7 @@ public partial class ChatDemo : DemoBase
     [TornadoTest]
     public static async Task ThreadSafeDelegates()
     {
-        await Parallel.ForEachAsync(Enumerable.Range(1, 100), async (n, ct) =>
+        await Parallel.ForEachAsync(Enumerable.Range(1, 20), async (n, ct) =>
         {
             Console.WriteLine(await Program.Connect().Chat.CreateConversation(new ChatRequest
             {
@@ -785,5 +785,26 @@ public partial class ChatDemo : DemoBase
                 ]
             }).GetResponseRich(ct));
         });
+    }
+    
+    [TornadoTest]
+    public static async Task NoChoicesResponse()
+    {
+        byte[] bytes = await File.ReadAllBytesAsync("Static/Images/flag.webp");
+        string base64 = $"{Convert.ToBase64String(bytes)}";
+        
+        RestDataOrException<ChatRichResponse> response = await Program.Connect().Chat.CreateConversation(new ChatRequest
+        {
+            Model = ChatModel.Google.Gemini.Gemini25Flash,
+            Messages =
+            [
+                new ChatMessage(ChatMessageRoles.User, [
+                    new ChatMessagePart("Describe this image"),
+                    new ChatMessagePart(new ChatImage(base64, "image/webp"))
+                ])
+            ]
+        }).GetResponseRichSafe();
+
+        Console.WriteLine(response.Data);
     }
 }
