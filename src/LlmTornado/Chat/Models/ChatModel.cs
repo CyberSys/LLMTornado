@@ -121,6 +121,14 @@ public class ChatModel : ModelBase
             {
                 AllModelsApiMap.TryAdd(x.ApiName, x);
             }
+
+            if (x.Aliases is not null)
+            {
+                foreach (string alias in x.Aliases)
+                {
+                    map.TryAdd(alias, x);
+                }
+            }
         });
 
         return map;
@@ -271,6 +279,7 @@ public class ChatModel : ModelBase
         Name = name;
         Provider = provider;
         ContextTokens = contextTokens;
+        Aliases = aliases;
     }
     
     /// <summary>
@@ -366,26 +375,11 @@ public class ChatModel : ModelBase
         return null;
     }
 
-    private static readonly Lazy<FrozenDictionary<string, IModel>> modelsByName = new Lazy<FrozenDictionary<string, IModel>>(() =>
-    {
-        Dictionary<string, IModel> dict = new Dictionary<string, IModel>(AllModels?.Count ?? 0);
-
-        if (AllModels is not null)
-        {
-            foreach (IModel model in AllModels)
-            {
-                dict[model.Name] = model;
-            }   
-        }
-
-        return dict.ToFrozenDictionary();
-    });
-
     internal static ChatModel? ResolveModel(LLmProviders provider, string modelName)
     {
-        if (modelsByProviderName.Value.TryGetValue(provider, out ChatModelVendorMap map))
+        if (modelsByProviderName.Value.TryGetValue(provider, out ChatModelVendorMap? map))
         {
-            if (map.ModelsByName.TryGetValue(modelName, out IModel model))
+            if (map.ModelsByName.TryGetValue(modelName, out IModel? model))
             {
                 return new ChatModel(model)
                 {
@@ -409,7 +403,7 @@ public class ChatModel : ModelBase
             foreach (IModel model in provider.AllModels)
             {
                 dictByName[model.Name] = model;
-
+                
                 if (model.Aliases is not null)
                 {
                     foreach (string alias in model.Aliases)

@@ -395,6 +395,14 @@ public partial class VendorAnthropicChatRequestMessageContent
                     
                     writer.WriteEndObject();
                 }
+
+                if (value.Msg.ToolCalls?.Count > 0)
+                {
+                    foreach (ToolCall toolCall in value.Msg.ToolCalls)
+                    {
+                        SerializeToolCall(writer, toolCall);
+                    }
+                }
                 
                 writer.WriteEndArray();
             }
@@ -434,16 +442,7 @@ public partial class VendorAnthropicChatRequestMessageContent
 
                 foreach (ToolCall toolCall in value.Msg.ToolCalls)
                 {
-                    writer.WriteStartObject();
-                    writer.WritePropertyName("type");
-                    writer.WriteValue("tool_use");
-                    writer.WritePropertyName("id");
-                    writer.WriteValue(toolCall.Id);
-                    writer.WritePropertyName("name");
-                    writer.WriteValue(toolCall.FunctionCall.Name);
-                    writer.WritePropertyName("input");
-                    writer.WriteRawValue(toolCall.FunctionCall.Arguments.IsNullOrWhiteSpace() ? "{}" : toolCall.FunctionCall.Arguments);
-                    writer.WriteEndObject();
+                    SerializeToolCall(writer, toolCall);
                 }
                 
                 writer.WriteEndArray();
@@ -458,6 +457,25 @@ public partial class VendorAnthropicChatRequestMessageContent
                     cacheToken.WriteTo(writer);
                 }
             }
+        }
+
+        void SerializeToolCall(JsonWriter writer, ToolCall toolCall)
+        {
+            if (toolCall.FunctionCall is null)
+            {
+                return;
+            }
+            
+            writer.WriteStartObject();
+            writer.WritePropertyName("type");
+            writer.WriteValue("tool_use");
+            writer.WritePropertyName("id");
+            writer.WriteValue(toolCall.Id);
+            writer.WritePropertyName("name");
+            writer.WriteValue(toolCall.FunctionCall.Name);
+            writer.WritePropertyName("input");
+            writer.WriteRawValue(toolCall.FunctionCall.Arguments.IsNullOrWhiteSpace() ? "{}" : toolCall.FunctionCall.Arguments);
+            writer.WriteEndObject();
         }
 
         public override VendorAnthropicChatRequestMessageContent ReadJson(JsonReader reader, Type objectType, VendorAnthropicChatRequestMessageContent existingValue, bool hasExistingValue, JsonSerializer serializer)

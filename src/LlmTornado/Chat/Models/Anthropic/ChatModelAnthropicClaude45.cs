@@ -13,7 +13,7 @@ public class ChatModelAnthropicClaude45 : IVendorModelClassProvider
     /// <summary>
     /// Latest snapshot of Haiku 4.5
     /// </summary>
-    public static readonly ChatModel ModelHaiku251001 = new ChatModel("claude-haiku-4-5-20251001", LLmProviders.Anthropic, 200_000);
+    public static readonly ChatModel ModelHaiku251001 = new ChatModel("claude-haiku-4-5-20251001", LLmProviders.Anthropic, 200_000, [ "claude-haiku-4-5" ]);
     
     /// <summary>
     /// <inheritdoc cref="ModelHaiku251001"/>
@@ -23,7 +23,7 @@ public class ChatModelAnthropicClaude45 : IVendorModelClassProvider
     /// <summary>
     /// Latest snapshot of Sonnet 4.5
     /// </summary>
-    public static readonly ChatModel ModelSonnet250929 = new ChatModel("claude-sonnet-4-5-20250929", LLmProviders.Anthropic, 200_000);
+    public static readonly ChatModel ModelSonnet250929 = new ChatModel("claude-sonnet-4-5-20250929", LLmProviders.Anthropic, 200_000, [ "claude-sonnet-4-5" ]);
     
     /// <summary>
     /// <inheritdoc cref="ModelSonnet250929"/>
@@ -35,7 +35,7 @@ public class ChatModelAnthropicClaude45 : IVendorModelClassProvider
     /// Ideal for complex specialized tasks, professional software engineering, and advanced agents.
     /// Features step-change improvements in vision, coding, and computer use.
     /// </summary>
-    public static readonly ChatModel ModelOpus251101 = new ChatModel("claude-opus-4-5-20251101", LLmProviders.Anthropic, 200_000);
+    public static readonly ChatModel ModelOpus251101 = new ChatModel("claude-opus-4-5-20251101", LLmProviders.Anthropic, 200_000, [ "claude-opus-4-5" ]);
     
     /// <summary>
     /// <inheritdoc cref="ModelOpus251101"/>

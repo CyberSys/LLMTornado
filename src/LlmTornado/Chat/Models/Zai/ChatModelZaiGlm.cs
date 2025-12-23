@@ -11,6 +11,16 @@ namespace LlmTornado.Chat.Models.Zai;
 public class ChatModelZaiGlm : IVendorModelClassProvider
 {
     /// <summary>
+    /// GLM-4.7 - Highest Performance, Strong Coding, More Versatile
+    /// </summary>
+    public static readonly ChatModel ModelGlm47 = new ChatModel("glm-4.7", LLmProviders.Zai, 200_000);
+
+    /// <summary>
+    /// <inheritdoc cref="ModelGlm46"/>
+    /// </summary>
+    public readonly ChatModel Glm47 = ModelGlm47;
+    
+    /// <summary>
     /// GLM-4.6 - Highest Performance, Strong Coding, More Versatile
     /// </summary>
     public static readonly ChatModel ModelGlm46 = new ChatModel("glm-4.6", LLmProviders.Zai, 200_000);
@@ -121,6 +131,7 @@ public class ChatModelZaiGlm : IVendorModelClassProvider
     public static List<IModel> ModelsAll => LazyModelsAll.Value;
 
     private static readonly Lazy<List<IModel>> LazyModelsAll = new Lazy<List<IModel>>(() => [
+        ModelGlm47,
         ModelGlm46,
         ModelGlm46V,
         ModelGlm46VFlash,

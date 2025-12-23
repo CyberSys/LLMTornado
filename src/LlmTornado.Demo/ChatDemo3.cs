@@ -762,7 +762,7 @@ public partial class ChatDemo : DemoBase
         ChatRichResponse response = await chat.GetResponseRich(x => ValueTask.CompletedTask);
         Console.WriteLine(response);
 
-        var ss = chat.Serialize();
+        TornadoRequestContent ss = chat.Serialize();
         
         response = await chat.GetResponseRich();
         Console.WriteLine(response);
@@ -805,6 +805,46 @@ public partial class ChatDemo : DemoBase
             ]
         }).GetResponseRichSafe();
 
+        Console.WriteLine(response.Data);
+    }
+
+    [TornadoTest]
+    public static async Task Issue123()
+    {
+        List<ChatMessage> messages = [
+            new ChatMessage(ChatMessageRoles.System, "You are a helpful assistant"),
+            new ChatMessage(ChatMessageRoles.User, "Read a file"),
+            new ChatMessage(ChatMessageRoles.Assistant, "Let me read that file.")
+            {
+                ToolCalls =
+                [
+                    new ToolCall
+                    {
+                        Id = "toolu_01QWbfgWVgXJ6AcepjthU5BJ",
+                        Type = "function",
+                        FunctionCall = new FunctionCall
+                        {
+                            Name = "read_file",
+                            Arguments = "{\"path\": \"test.txt\"}"
+                        }
+                    }
+                ]
+            },
+            new ChatMessage(ChatMessageRoles.Tool, "Mice won the war against cats.")
+            {
+                ToolCallId = "toolu_01QWbfgWVgXJ6AcepjthU5BJ"
+            }
+        ];
+
+        ChatRequest request = new ChatRequest
+        {
+            Model = "claude-haiku-4-5",
+            Messages = messages
+        };
+
+        Conversation conversation = Program.Connect().Chat.CreateConversation(request);
+        TornadoRequestContent serialized = conversation.Serialize();
+        RestDataOrException<ChatRichResponse> response = await conversation.GetResponseRichSafe();
         Console.WriteLine(response.Data);
     }
 }
