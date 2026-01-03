@@ -6,6 +6,7 @@ using LlmTornado.Code;
 using LlmTornado.Code.Vendor;
 using LlmTornado.Videos.Models;
 using LlmTornado.Videos.Vendors.Google;
+using LlmTornado.Videos.Vendors.OpenAi;
 using LlmTornado.Vendor.Google;
 using Newtonsoft.Json;
 
@@ -130,6 +131,12 @@ public class VideoGenerationRequest
     /// </summary>
     [JsonIgnore]
     public VideoGenerationRequestGoogleExtensions? GoogleExtensions { get; set; }
+    
+    /// <summary>
+    ///     OpenAI-specific extensions for video generation.
+    /// </summary>
+    [JsonIgnore]
+    public VideoOpenAiExtensions? OpenAiExtensions { get; set; }
 
     private static readonly Dictionary<LLmProviders, Func<VideoGenerationRequest, IEndpointProvider, JsonSerializerSettings?, TornadoRequestContent>> serializeMap = new Dictionary<LLmProviders, Func<VideoGenerationRequest, IEndpointProvider, JsonSerializerSettings?, TornadoRequestContent>>
     {

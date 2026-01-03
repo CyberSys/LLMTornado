@@ -3,6 +3,7 @@ using LlmTornado.Chat.Models;
 using LlmTornado.Code;
 using LlmTornado.Code.Models;
 using LlmTornado.Videos.Models.Google;
+using LlmTornado.Videos.Models.OpenAi;
 using LlmTornado.Models;
 
 namespace LlmTornado.Videos.Models;
@@ -18,6 +19,11 @@ public class VideoModel : ModelBase
     public static readonly VideoModelGoogle Google = new VideoModelGoogle();
     
     /// <summary>
+    /// Models from OpenAI.
+    /// </summary>
+    public static readonly VideoModelOpenAi OpenAi = new VideoModelOpenAi();
+    
+    /// <summary>
     /// All known models keyed by name.
     /// </summary>
     public static readonly Dictionary<string, IModel> AllModelsMap = [];
@@ -30,7 +36,8 @@ public class VideoModel : ModelBase
     static VideoModel()
     {
         AllModels = [
-            ..Google.AllModels
+            ..Google.AllModels,
+            ..OpenAi.AllModels
         ];
         
         AllModels.ForEach(x =>

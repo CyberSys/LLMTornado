@@ -90,6 +90,7 @@ public class OpenAiEndpointProvider : BaseEndpointProvider, IEndpointProvider, I
             CapabilityEndpoints.Responses => "responses",
             CapabilityEndpoints.ResponsesConversation => "conversations",
             CapabilityEndpoints.Batch => "batches",
+            CapabilityEndpoints.Videos => "videos",
             // conditionally supported
             CapabilityEndpoints.ContextualEmbeddings when provider is LLmProviders.Voyage => "contextualizedembeddings",
             CapabilityEndpoints.MultimodalEmbeddings when provider is LLmProviders.Voyage => "multimodalembeddings",

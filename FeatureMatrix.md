@@ -9,7 +9,7 @@ _Empty field means the feature is unsupported by the provider._
 
 | Provider | Chat | Models | Embeddings | Files | Images | Audio | Uploads | Moderation | Responses | Videos | Tokenize | FIM | Fine-tuning | Batch |
 |:---|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|
-| **OpenAI** | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ❌ | | | ✅ | ✅ |
+| **OpenAI** | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | | | ✅ | ✅ |
 | **Anthropic** | ✅ | ✅ | | ✅ | | | | | | | ✅ | | | ✅ |
 | **Google** | ✅ | ✅ | ✅ | ✅ | ✅ | | | | | ✅ | ✅ | | ❌ | ✅ |
 | **Cohere** | ✅ | ✅ | ✅ | | | | | | | | ✅ | | | |
@@ -39,9 +39,9 @@ Conversations | Assistants | Threads | Messages | Runs | Run steps | Vector stor
 
 ## Google Specific
 
- Caching | Semantic Retrieval | Live | Video | Speech
-|-----------|------------ | ------------ | ------------ | ------------ |
-| ✅ | ❌ | ❌ | ❌ | ✅ |
+ Caching | Semantic Retrieval | Live | Speech
+|-----------|------------ | ------------ | ------------ |
+| ✅ | ❌ | ❌ | ✅ |
 
 ## Anthropic Specific
 
@@ -57,7 +57,7 @@ Conversations | Assistants | Threads | Messages | Runs | Run steps | Vector stor
 
 ## Cohere Specific
 
- Rerank 
+| Rerank |
 |-----------|
 | ❌ |
 

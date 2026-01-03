@@ -221,6 +221,11 @@ public enum VideoDuration
     /// Required when using extension, interpolation, or referenceImages
     /// </summary>
     Seconds8 = 8,
+    
+    /// <summary>
+    /// 12 seconds - Supported by sora-2 and sora-2-pro
+    /// </summary>
+    Seconds12 = 12,
 
     /// <summary>
     /// Custom duration - Use DurationSecondsCustom property to specify

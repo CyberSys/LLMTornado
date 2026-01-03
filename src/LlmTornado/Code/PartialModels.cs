@@ -48,10 +48,24 @@ public enum ChatModelEndpointCapabilities
     Batch
 }
 
-internal class StreamResponse
+/// <summary>
+/// Response with a stream content.
+/// </summary>
+public class StreamResponse
 {
+    /// <summary>
+    /// The stream.
+    /// </summary>
     public Stream Stream { get; set; }
+    
+    /// <summary>
+    /// Headers of the response.
+    /// </summary>
     public ApiResultBase Headers { get; set; }
+    
+    /// <summary>
+    /// Accompanying HTTP response message.
+    /// </summary>
     public HttpResponseMessage Response { get; set; }
 }
 
