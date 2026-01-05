@@ -26,6 +26,7 @@ using LlmTornado.VectorStores;
 using LlmTornado.Uploads;
 using LlmTornado.Skills;
 using LlmTornado.Tokenize;
+using LlmTornado.Common;
 
 namespace LlmTornado;
 
@@ -74,6 +75,11 @@ public class TornadoApi
     ///     This setting must be explicitly enabled as it may bypass certain security restrictions.
     /// </summary>
     public bool DirectBrowserAccess { get; set; }
+
+    /// <summary>
+    ///     Settings applied to outbound HTTP requests.
+    /// </summary>
+    public TornadoRequestSettings RequestSettings { get; set; } = new TornadoRequestSettings();
     
     /// <summary>
     ///     Creates a new Tornado API without any authentication. Use this with self-hosted models.

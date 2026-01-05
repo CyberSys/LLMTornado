@@ -107,7 +107,7 @@ internal static class VendorGoogleVideoHandler
             request.Headers.Add("x-goog-api-key", auth.ApiKey.Trim());
         }
         
-        request.Headers.Add("User-Agent", EndpointBase.GetUserAgent());
+        request.Headers.Add("User-Agent", EndpointBase.ResolveUserAgent(provider.Api));
         
         try
         {

@@ -149,6 +149,18 @@ public abstract class EndpointBase
     }
 
     /// <summary>
+    ///     Resolves the User-Agent to use for requests. If the API has a custom User-Agent set, uses that;
+    ///     otherwise falls back to the default User-Agent. The result is always trimmed.
+    /// </summary>
+    /// <param name="api">Optional TornadoApi instance that may have custom request settings</param>
+    /// <returns>The resolved and trimmed User-Agent string</returns>
+    internal static string ResolveUserAgent(TornadoApi? api)
+    {
+        string? customUserAgent = api?.RequestSettings?.UserAgent;
+        return (customUserAgent ?? userAgent).Trim();
+    }
+
+    /// <summary>
     ///     Gets an HTTPClient with the appropriate authorization and other headers set
     /// </summary>
     /// <returns>The fully initialized HttpClient</returns>

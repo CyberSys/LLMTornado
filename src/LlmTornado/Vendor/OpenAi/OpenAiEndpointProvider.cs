@@ -120,7 +120,7 @@ public class OpenAiEndpointProvider : BaseEndpointProvider, IEndpointProvider, I
         {
             Version = OutboundVersion
         };
-        req.Headers.Add("User-Agent", EndpointBase.GetUserAgent().Trim());
+        req.Headers.Add("User-Agent", EndpointBase.ResolveUserAgent(Api));
 
         ProviderAuthentication? auth = Api?.GetProvider(Provider).Auth;
         
@@ -168,7 +168,7 @@ public class OpenAiEndpointProvider : BaseEndpointProvider, IEndpointProvider, I
             res.Organization = orgH.FirstOrDefault();
         }
 
-        if (response.Headers.TryGetValues("X-Request-ID", out IEnumerable<string>? reqId))
+        if (response.Headers.TryGetValues("X-RequestSettings-ID", out IEnumerable<string>? reqId))
         {
             res.RequestId = reqId.FirstOrDefault();
         }

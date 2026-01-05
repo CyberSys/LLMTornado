@@ -314,7 +314,7 @@ public class GoogleEndpointProvider : BaseEndpointProvider, IEndpointProvider, I
             Version = OutboundVersion
         };
 
-        req.Headers.Add("User-Agent", EndpointBase.GetUserAgent());
+        req.Headers.Add("User-Agent", EndpointBase.ResolveUserAgent(Api));
 
         RequestResolver?.Invoke(req, data, streaming);
 

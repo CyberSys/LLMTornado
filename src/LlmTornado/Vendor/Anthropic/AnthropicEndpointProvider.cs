@@ -751,7 +751,7 @@ public class AnthropicEndpointProvider : BaseEndpointProvider, IEndpointProvider
             Version = OutboundVersion
         };
         
-        req.Headers.Add("User-Agent", EndpointBase.GetUserAgent());
+        req.Headers.Add("User-Agent", EndpointBase.ResolveUserAgent(Api));
         req.Headers.Add("anthropic-version", "2023-06-01");
         
         if (IsDirectBrowserAccessEnabled())

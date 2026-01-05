@@ -495,7 +495,7 @@ public class CohereEndpointProvider : BaseEndpointProvider, IEndpointProvider, I
         {
             Version = OutboundVersion
         };
-        req.Headers.Add("User-Agent", EndpointBase.GetUserAgent());
+        req.Headers.Add("User-Agent", EndpointBase.ResolveUserAgent(Api));
 
         ProviderAuthentication? auth = Api?.GetProvider(LLmProviders.Cohere).Auth;
         

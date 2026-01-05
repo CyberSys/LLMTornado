@@ -192,7 +192,7 @@ public class EmbeddingEndpoint : EndpointBase
 	/// <summary>
 	///     Ask the API to embed text using a custom request.
 	/// </summary>
-	/// <param name="request">Request to be sent</param>
+	/// <param name="request">RequestSettings to be sent</param>
 	/// <returns>
 	///     Asynchronously returns the embedding result. Look in its <see cref="EmbeddingEntry.Embedding" /> property of
 	///     <see cref="EmbeddingResult.Data" /> to find the vector of floating point numbers
