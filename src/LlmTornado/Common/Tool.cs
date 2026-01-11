@@ -897,6 +897,16 @@ public class Tool
     public IRemoteTool? RemoteTool { get; set; }
     
     /// <summary>
+    /// Gets the resolved name of the tool, using a fallback chain: ToolName → Function.Name → Custom.Name → Delegate.Method.Name → string.Empty
+    /// </summary>
+    public string ResolvedName => ToolName ?? Function?.Name ?? Custom?.Name ?? Delegate?.Method.Name ?? string.Empty;
+    
+    /// <summary>
+    /// Gets the resolved description of the tool, using a fallback chain: ToolDescription → Function.Description → Custom.Description → null
+    /// </summary>
+    public string ResolvedDescription => ToolDescription ?? Function?.Description ?? Custom?.Description ?? string.Empty;
+    
+    /// <summary>
     ///     Creates a tool from <see cref="ToolFunction" />
     /// </summary>
     /// <param name="function"></param>
