@@ -6,33 +6,34 @@ The Model Context Protocol (MCP) is an open standard that enables seamless integ
 
 ## Quick Start
 
- Please see [https://github.com/GongRzhe/Gmail-MCP-Server](gmail-mcp-server) for more details on setting up OAuth
+ Please see [gmail-mcp-server](https://github.com/GongRzhe/Gmail-MCP-Server) for more details on setting up OAuth
 
 ```csharp
+using System.Linq;
+using LlmTornado;
+using LlmTornado.Agents;
+using LlmTornado.Chat.Models;
+using LlmTornado.Mcp;
 
-    MCPServer gmailServer = new MCPServer(
-        serverLabel:"gmail",
-        command: "npx", 
-        arguments: new[] { "@gongrzhe/server-gmail-autoauth-mcp" },
-        allowedTools: [
-            "read_email", 
-            "draft_email", 
-            "search_emails"]);
+MCPServer gmailServer = MCPToolkits.Gmail(
+    allowedTools: [
+        "read_email",
+        "draft_email",
+        "search_emails"]);
 
-    await gmailServer.InitializeAsync(); // This will handle MCP Client connection to setup tools
+await gmailServer.InitializeAsync(); // This will handle MCP Client connection to setup tools
 
-    TornadoAgent agent = new TornadoAgent(
-        client,
-        model: ChatModel.OpenAi.Gpt41.V41Mini,
-        instructions: "You are a useful assistant for managing Gmail."
-            );
+TornadoAgent agent = new TornadoAgent(
+    client: api,
+    model: ChatModel.OpenAi.Gpt41.V41Mini,
+    instructions: "You are a useful assistant for managing Gmail."
+);
 
+agent.AddTool(gmailServer.AllowedTornadoTools); // Register MCP tools to the agent
 
-    agent.AddMcpTools(gmailServer.AllowedTornadoTools.ToArray()); // Register MCP tools to the agent
+Conversation result = await agent.Run("Did mom respond?");
 
-    Conversation result = await agent.RunAsync("Did mom respond?");
-
-    Console.WriteLine(result.Messages.Last().Content);
+Console.WriteLine(result.Messages.Last().Content);
 ```
 
 ## Best Practices
@@ -101,13 +102,18 @@ The Model Context Protocol (MCP) is an open standard that enables seamless integ
 
 #### ListTornadoToolsAsync
 ```csharp
-public static async Task<List<Tool>> ListTornadoToolsAsync(this IMcpClient client)
+public static ValueTask<List<Tool>> ListTornadoToolsAsync(this McpClient client)
 ```
 Fetches all tools from the MCP server and converts them to LlmTornado Tool objects.
 
 #### ResolveRemote
 ```csharp
-public static async Task ResolveRemote(this FunctionCall call, object arguments)
+public async ValueTask<FunctionCall> ResolveRemote(
+    object? args = null,
+    IProgress<ToolCallProgress>? progress = null,
+    JsonSerializerOptions? serializerOptions = null,
+    bool fillContent = true,
+    CancellationToken cancellationToken = default)
 ```
 Executes a function call on the remote MCP server.
 
@@ -117,8 +123,26 @@ Executes a function call on the remote MCP server.
 ```csharp
 public class MCPServer
 {
-    public MCPServer(IMcpClient client)
-    public IMcpClient Client { get; }
+    public MCPServer(
+        string serverLabel,
+        string serverUrl,
+        string[]? allowedTools = null,
+        Dictionary<string, string>? additionalConnectionHeaders = null,
+        ClientOAuthOptions? oAuthOptions = null)
+
+    public MCPServer(
+        string serverLabel,
+        string command,
+        string[]? arguments,
+        string workingDirectory = "",
+        Dictionary<string, string>? environmentVariables = null,
+        string[]? allowedTools = null)
+
+    public List<Tool> AllowedTornadoTools { get; }
+    public string[]? AllowedTools { get; set; }
+    public Dictionary<string, string>? AdditionalConnectionHeaders { get; set; }
+
+    public Task InitializeAsync()
 }
 ```
 

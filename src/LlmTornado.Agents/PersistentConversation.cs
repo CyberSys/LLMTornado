@@ -357,6 +357,28 @@ public static class ConversationIOUtility
         if (!File.Exists(conversationPath))
             throw new FileNotFoundException("Conversation file not found", conversationPath);
 
+        string json = await File.ReadAllTextAsync(conversationPath);
+        if (!string.IsNullOrWhiteSpace(json))
+        {
+            try
+            {
+                List<PersistentMessage>? dtos = JsonConvert.DeserializeObject<List<PersistentMessage>>(json);
+                if (dtos is not null)
+                {
+                    foreach (PersistentMessage dto in dtos)
+                    {
+                        messages.Add(ConvertPersistantToChatMessage(dto));
+                    }
+
+                    return messages;
+                }
+            }
+            catch
+            {
+                // Fall back to line-delimited format.
+            }
+        }
+
         using StreamReader reader = new StreamReader(conversationPath);
         string? line;
 
