@@ -249,29 +249,26 @@ public class TornadoRunner
     {
         Conversation chat = agent.Client.Chat.CreateConversation(agent.Options);
 
-        //Set response id
-        if (!string.IsNullOrEmpty(responseId))
-        {
-            chat.RequestParameters.ResponseRequestParameters!.PreviousResponseId = responseId;
-        }
-        else
-        {
-            chat.AddSystemMessage(agent.Instructions); //Set the instructions for the agent
-        }
-
-
         //Set the cancellation token for the agent client
         chat.RequestParameters.CancellationToken = cancellationToken;
 
         //Setup the messages from previous runs or memory
         chat = AddMessagesToConversation(chat, messages);
 
-        
         //Add the latest message to the stream
         if (input?.Count > 0)
         {
             chat.AppendUserInput(input);
         }
+
+        //Set response id
+        if (!string.IsNullOrEmpty(responseId))
+        {
+            chat.RequestParameters.ResponseRequestParameters!.PreviousResponseId = responseId;
+        }
+
+        //Setting up system message at the end.
+        chat.AddSystemMessage(agent.Instructions); //Set the instructions for the agent
 
         return chat;
     }
