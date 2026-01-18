@@ -6,22 +6,22 @@ using LlmTornado.Code.Models;
 namespace LlmTornado.Embedding.Models.Voyage;
 
 /// <summary>
-/// Known multimodal embedding models from Voyage.
+/// Voyage Multimodal Gen 3.5 embedding models from Voyage.
 /// </summary>
-public class EmbeddingModelVoyageMultimodal : BaseVendorModelProvider
+public class EmbeddingModelVoyageMultimodalGen35 : BaseVendorModelProvider
 {
     /// <inheritdoc cref="BaseVendorModelProvider.Provider"/>
     public override LLmProviders Provider => LLmProviders.Voyage;
     
     /// <summary>
-    /// Voyage Multimodal Gen 3 models.
+    /// Rich multimodal embedding model that can vectorize interleaved text and visual data, such as screenshots of PDFs, slides, tables, figures, videos, and more.
     /// </summary>
-    public readonly EmbeddingModelVoyageMultimodalGen3 Gen3 = new EmbeddingModelVoyageMultimodalGen3();
+    public static readonly MultimodalEmbeddingModel ModelMultimodal = new MultimodalEmbeddingModel("voyage-multimodal-3.5", LLmProviders.Voyage, 32_000, 1024);
 
     /// <summary>
-    /// Voyage Multimodal Gen 3.5 models.
+    /// <inheritdoc cref="ModelMultimodal"/>
     /// </summary>
-    public readonly EmbeddingModelVoyageMultimodalGen35 Gen35 = new EmbeddingModelVoyageMultimodalGen35();
+    public readonly MultimodalEmbeddingModel Multimodal = ModelMultimodal;
     
     /// <summary>
     /// All owned models.
@@ -29,10 +29,8 @@ public class EmbeddingModelVoyageMultimodal : BaseVendorModelProvider
     public override List<IModel> AllModels => ModelsAll;
 
     /// <summary>
-    /// Checks whether the model is owned by the provider.
+    /// Checks whether a model is owned.
     /// </summary>
-    /// <param name="model"></param>
-    /// <returns></returns>
     public override bool OwnsModel(string model)
     {
         return AllModelsMap.Contains(model);
@@ -51,16 +49,15 @@ public class EmbeddingModelVoyageMultimodal : BaseVendorModelProvider
     });
     
     /// <summary>
-    /// <inheritdoc cref="AllModels"/>
+    /// All known Voyage Multimodal Gen 3.5 models.
     /// </summary>
     public static List<IModel> ModelsAll => LazyModelsAll.Value;
 
     private static readonly Lazy<List<IModel>> LazyModelsAll = new Lazy<List<IModel>>(() => [
-        ..EmbeddingModelVoyageMultimodalGen3.ModelsAll,
-        ..EmbeddingModelVoyageMultimodalGen35.ModelsAll
+        ModelMultimodal
     ]);
     
-    internal EmbeddingModelVoyageMultimodal()
+    internal EmbeddingModelVoyageMultimodalGen35()
     {
         
     }

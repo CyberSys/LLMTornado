@@ -64,11 +64,11 @@ public class TornadoFile
 	[JsonProperty("status_details")]
     public string? StatusDetails { get; set; }
 	
-	/// <summary>
-	///     MIME type, output only. Used only by Google.
-	/// </summary>
-	[JsonIgnore]
-	public string? MimeType { get; set; }
+    /// <summary>
+    ///     MIME type. Used only by Google (mimeType) and Mistral (mimetype).
+    /// </summary>
+    [JsonProperty("mimetype")]
+    public string? MimeType { get; set; }
 	
 	/// <summary>
 	///		Whether the content can be downloaded, supported only by Anthropic.
@@ -94,8 +94,32 @@ public class TornadoFile
 	[JsonIgnore]
 	public FileLinkStates? State { get; set; }
 
-	/// <summary>
-	/// Returns <see cref="Uri"/> or <see cref="Id"/> - this property should be used for cross-provider referencing of the file.
-	/// </summary>
-	public string Reference => Uri ?? Id;
+    /// <summary>
+    /// Returns <see cref="Uri"/> or <see cref="Id"/> - this property should be used for cross-provider referencing of the file.
+    /// </summary>
+    public string Reference => Uri ?? Id;
+    
+    /// <summary>
+    /// Number of lines in the file. Returned by Mistral.
+    /// </summary>
+    [JsonProperty("num_lines")]
+    public int? NumLines { get; set; }
+    
+    /// <summary>
+    /// Source of the file (e.g. "upload", "mistral"). Returned by Mistral.
+    /// </summary>
+    [JsonProperty("source")]
+    public TornadoFileSource? Source { get; set; }
+    
+    /// <summary>
+    /// Sample type (e.g. "batch_result"). Returned by Mistral.
+    /// </summary>
+    [JsonProperty("sample_type")]
+    public TornadoFileSampleType? SampleType { get; set; }
+    
+    /// <summary>
+    /// Signature of the server. Returned by Mistral.
+    /// </summary>
+    [JsonProperty("signature")]
+    public string? Signature { get; set; }
 }

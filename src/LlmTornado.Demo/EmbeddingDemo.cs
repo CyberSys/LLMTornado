@@ -91,7 +91,6 @@ public class EmbeddingDemo : DemoBase
         {
             Voyage = new EmbeddingRequestVendorVoyageExtensions
             {
-                OutputDtype = EmbeddingOutputDtypes.Uint8,
                 InputType = EmbeddingVendorVoyageInputTypes.Document
             }
         });

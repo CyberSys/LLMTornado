@@ -15,7 +15,7 @@ _Empty field means the feature is unsupported by the provider._
 | **Cohere** | ✅ | ✅ | ✅ | | | | | | | | ✅ | | | |
 | **DeepSeek** | ✅ | ✅ | | | | | | | | | | ❌ | | |
 | **Groq** | ✅ | ✅ | | ❌ | | | | | | | | | | ❌ |
-| **Mistral** | ✅ | ✅ | ✅ | ❌ | | ✅ | | | | | | ❌ | ❌ | ❌ |
+| **Mistral** | ✅ | ✅ | ✅ | ✅ | | ✅ | | | | | | ❌ | ❌ | ❌ |
 | **xAI** | ✅ | ✅ | | | ✅ | | | | ❌ | | | | | |
 | **MoonshotAI**| ✅ | ✅ | | ✅ | | | | | | | ✅ | | | |
 | **Perplexity**| ✅ | | | | | | | | | | | | | |
@@ -65,7 +65,7 @@ Conversations | Assistants | Threads | Messages | Runs | Run steps | Vector stor
 
 Agents | Classifiers | OCR | Agents |
 | ------------ | ------------ | ------------ | ------------ |
-| ❌ |  ❌ | ❌ | ❌ |
+| ❌ |  ❌ | ✅ | ❌ |
 
 ## Misc
 

@@ -36,12 +36,32 @@ public class VideoModelOpenAiSora : BaseVendorModelProvider
     public readonly VideoModel Sora2Pro = ModelSora2Pro;
     
     /// <summary>
+    /// Sora 2 snapshot from 2025-12-08.
+    /// </summary>
+    public static readonly VideoModel ModelSora2_20251208 = new VideoModel("sora-2-2025-12-08", "openai", LLmProviders.OpenAi);
+    
+    /// <summary>
+    /// <inheritdoc cref="ModelSora2_20251208"/>
+    /// </summary>
+    public readonly VideoModel Sora2_20251208 = ModelSora2_20251208;
+    
+    /// <summary>
+    /// Sora 2 snapshot from 2025-10-06.
+    /// </summary>
+    public static readonly VideoModel ModelSora2_20251006 = new VideoModel("sora-2-2025-10-06", "openai", LLmProviders.OpenAi);
+    
+    /// <summary>
+    /// <inheritdoc cref="ModelSora2_20251006"/>
+    /// </summary>
+    public readonly VideoModel Sora2_20251006 = ModelSora2_20251006;
+
+    /// <summary>
     /// All known Sora models.
     /// </summary>
     public static List<IModel> ModelsAll => LazyModelsAll.Value;
 
     private static readonly Lazy<List<IModel>> LazyModelsAll = new Lazy<List<IModel>>(() => [
-        ModelSora2, ModelSora2Pro
+        ModelSora2, ModelSora2Pro, ModelSora2_20251208, ModelSora2_20251006
     ]);
     
     /// <summary>

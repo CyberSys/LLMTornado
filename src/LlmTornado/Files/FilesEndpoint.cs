@@ -300,6 +300,7 @@ public class FilesEndpoint : EndpointBase
 		{
 			case LLmProviders.Custom:
 			case LLmProviders.OpenAi:
+			case LLmProviders.Mistral:
 			{
 				HttpCallResult<TornadoFile> file = await HttpPost<TornadoFile>(resolvedProvider, CapabilityEndpoints.Files, url, content.Body).ConfigureAwait(false);
 

@@ -49,7 +49,7 @@ public class AudioModelOpenAiGpt4 : IVendorModelClassProvider
     /// <inheritdoc cref="ModelGptAudioMini20251215"/>
     /// </summary>
     public readonly AudioModel GptAudioMini20251215 = ModelGptAudioMini20251215;
-    
+
     /// <summary>
     /// gpt-4o-mini-transcribe-2025-12-15
     /// </summary>
@@ -59,6 +59,36 @@ public class AudioModelOpenAiGpt4 : IVendorModelClassProvider
     /// <inheritdoc cref="ModelGpt4OMiniTranscribe20251215"/>
     /// </summary>
     public readonly AudioModel Gpt4OMiniTranscribe20251215 = ModelGpt4OMiniTranscribe20251215;
+    
+    /// <summary>
+    /// gpt-4o-mini-transcribe-2025-03-20
+    /// </summary>
+    public static readonly AudioModel ModelGpt4OMiniTranscribe20250320 = new AudioModel("gpt-4o-mini-transcribe-2025-03-20", LLmProviders.OpenAi, 16_385);
+
+    /// <summary>
+    /// <inheritdoc cref="ModelGpt4OMiniTranscribe20250320"/>
+    /// </summary>
+    public readonly AudioModel Gpt4OMiniTranscribe20250320 = ModelGpt4OMiniTranscribe20250320;
+    
+    /// <summary>
+    /// gpt-4o-mini-tts-2025-03-20
+    /// </summary>
+    public static readonly AudioModel ModelGpt4OMiniTts20250320 = new AudioModel("gpt-4o-mini-tts-2025-03-20", LLmProviders.OpenAi, 16_385);
+
+    /// <summary>
+    /// <inheritdoc cref="ModelGpt4OMiniTts20250320"/>
+    /// </summary>
+    public readonly AudioModel Gpt4OMiniTts20250320 = ModelGpt4OMiniTts20250320;
+    
+     /// <summary>
+    /// gpt-4o-mini-tts-2025-12-15
+    /// </summary>
+    public static readonly AudioModel ModelGpt4OMiniTts20251215 = new AudioModel("gpt-4o-mini-tts-2025-12-15", LLmProviders.OpenAi, 16_385);
+
+    /// <summary>
+    /// <inheritdoc cref="ModelGpt4OMiniTts20251215"/>
+    /// </summary>
+    public readonly AudioModel Gpt4OMiniTts20251215 = ModelGpt4OMiniTts20251215;
     
     /// <summary>
     /// gpt-4o-transcribe-diarize
@@ -74,14 +104,17 @@ public class AudioModelOpenAiGpt4 : IVendorModelClassProvider
     /// All known Gpt4 models from OpenAI.
     /// </summary>
     public static List<IModel> ModelsAll => LazyModelsAll.Value;
-
+    
     private static readonly Lazy<List<IModel>> LazyModelsAll = new Lazy<List<IModel>>(() => [
         Model4OMiniTts,
         Model4OTranscribe,
         Model4OMiniTranscribe,
         ModelGptAudioMini20251215,
         ModelGpt4OMiniTranscribe20251215,
-        ModelGpt4OTranscribeDiarize
+        ModelGpt4OTranscribeDiarize,
+        ModelGpt4OMiniTranscribe20250320,
+        ModelGpt4OMiniTts20250320,
+        ModelGpt4OMiniTts20251215
     ]);
 
     /// <summary>

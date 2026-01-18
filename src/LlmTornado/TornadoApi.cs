@@ -19,6 +19,7 @@ using LlmTornado.Images;
 using LlmTornado.Videos;
 using LlmTornado.Models;
 using LlmTornado.Moderation;
+using LlmTornado.Ocr;
 using LlmTornado.Rerank;
 using LlmTornado.Responses;
 using LlmTornado.Threads;
@@ -64,6 +65,7 @@ public class TornadoApi
     private readonly Lazy<TokenizeEndpoint> tokenize;
     private readonly Lazy<VideoGenerationEndpoint> videos;
     private readonly Lazy<BatchEndpoint> batch;
+    private readonly Lazy<OcrEndpoint> ocr;
 
     /// <summary>
     ///     If true, the API will throw exceptions for non-200 responses.
@@ -109,6 +111,7 @@ public class TornadoApi
         tokenize = new Lazy<TokenizeEndpoint>(() => new TokenizeEndpoint(this), LazyThreadSafetyMode.ExecutionAndPublication);
         videos = new Lazy<VideoGenerationEndpoint>(() => new VideoGenerationEndpoint(this), LazyThreadSafetyMode.ExecutionAndPublication);
         batch = new Lazy<BatchEndpoint>(() => new BatchEndpoint(this), LazyThreadSafetyMode.ExecutionAndPublication);
+        ocr = new Lazy<OcrEndpoint>(() => new OcrEndpoint(this), LazyThreadSafetyMode.ExecutionAndPublication);
     }
 
     /// <summary>
@@ -524,4 +527,10 @@ public class TornadoApi
     ///     The Batch API allows you to create asynchronous jobs to process multiple requests at once.
     /// </summary>
     public BatchEndpoint Batch => batch.Value;
+    
+    /// <summary>
+    ///     The OCR API allows you to extract text, layout, and other information from documents.
+    ///     Only available with Mistral provider.
+    /// </summary>
+    public OcrEndpoint Ocr => ocr.Value;
 }

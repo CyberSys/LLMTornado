@@ -95,6 +95,7 @@ public class OpenAiEndpointProvider : BaseEndpointProvider, IEndpointProvider, I
             CapabilityEndpoints.ContextualEmbeddings when provider is LLmProviders.Voyage => "contextualizedembeddings",
             CapabilityEndpoints.MultimodalEmbeddings when provider is LLmProviders.Voyage => "multimodalembeddings",
             CapabilityEndpoints.Rerank when provider is LLmProviders.Voyage => "rerank",
+            CapabilityEndpoints.Ocr when provider is LLmProviders.Mistral => "ocr",
             _ => throw new Exception($"{provider} doesn't support endpoint {endpoint}")
         };
     }

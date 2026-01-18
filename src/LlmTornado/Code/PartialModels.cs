@@ -1757,7 +1757,12 @@ public enum CapabilityEndpoints
     /// <summary>
     /// Batch endpoint.
     /// </summary>
-    Batch
+    Batch,
+    
+    /// <summary>
+    /// OCR endpoint.
+    /// </summary>
+    Ocr
 }
 
 /// <summary>

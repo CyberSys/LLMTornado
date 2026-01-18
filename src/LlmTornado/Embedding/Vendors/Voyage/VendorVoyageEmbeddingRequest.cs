@@ -1,3 +1,6 @@
+using System;
+using System.Collections.Generic;
+using LlmTornado.Chat;
 using LlmTornado.Code;
 using Newtonsoft.Json;
 
@@ -12,10 +15,16 @@ internal class VendorVoyageEmbeddingRequest
     public string Model { get; set; }
 
     /// <summary>
-    ///     string | string[]
+    ///     Multimodal inputs.
+    /// </summary>
+    [JsonProperty("inputs")]
+    public List<VendorVoyageMultimodalInput>? Inputs { get; set; }
+
+    /// <summary>
+    ///     string | string[] | null
     /// </summary>
     [JsonProperty("input")]
-    internal object Input { get; set; }
+    internal object? Input { get; set; }
     
     /// <summary>
     /// Null | query | document
@@ -61,6 +70,74 @@ internal class VendorVoyageEmbeddingRequest
             Input = request.InputScalar ?? string.Empty;
         }
 
+        if (request.MultimodalInput is not null)
+        {
+            Inputs = [];
+            request.OverrideUrl("/multimodalembeddings");
+
+            foreach (IList<ChatMessagePart> inputParts in request.MultimodalInput)
+            {
+                VendorVoyageMultimodalInput input = new VendorVoyageMultimodalInput();
+
+                foreach (ChatMessagePart part in inputParts)
+                {
+                    VendorVoyageMultimodalContent content = new VendorVoyageMultimodalContent();
+
+                    if (part.Type == ChatMessageTypes.Text)
+                    {
+                        content.Type = "text";
+                        content.Text = part.Text;
+                    }
+                    else if (part.Type == ChatMessageTypes.Image)
+                    {
+                        if (part.Image?.Url is null)
+                        {
+                            continue;
+                        }
+                        
+                        string url = part.Image.Url;
+
+                        if (url.StartsWith("data:", StringComparison.OrdinalIgnoreCase))
+                        {
+                            content.Type = "image_base64";
+                            content.ImageBase64 = url;
+                        }
+                        else
+                        {
+                            content.Type = "image_url";
+                            content.ImageUrl = url;
+                        }
+                    }
+                    else if (part.Type == ChatMessageTypes.Video)
+                    {
+                        if (part.Video?.Url is null)
+                        {
+                            continue;
+                        }
+                        
+                        string url = part.Video.Url.ToString();
+
+                        if (url.StartsWith("data:", StringComparison.OrdinalIgnoreCase))
+                        {
+                            content.Type = "video_base64";
+                            content.VideoBase64 = url;
+                        }
+                        else
+                        {
+                            content.Type = "video_url";
+                            content.VideoUrl = url;
+                        }
+                    }
+
+                    input.Content.Add(content);
+                }
+                
+                Inputs.Add(input);
+            }
+            
+            Input = null;
+        }
+
         Dimensions = request.Dimensions;
 
         if (request.OutputDType is not null)
@@ -80,9 +157,7 @@ internal class VendorVoyageEmbeddingRequest
         if (request.VendorExtensions?.Voyage is not null)
         {
             Truncation = request.VendorExtensions.Voyage.Truncation;
-            
-            // note: legacy extension
-            OutputDtype = request.VendorExtensions.Voyage.OutputDtype switch
+            OutputDtype = request.OutputDType switch
             {
                 null => null,
                 EmbeddingOutputDtypes.Float => "float",
@@ -101,4 +176,31 @@ internal class VendorVoyageEmbeddingRequest
             };
         }
     }
+}
+
+internal class VendorVoyageMultimodalInput
+{
+    [JsonProperty("content")]
+    public List<VendorVoyageMultimodalContent> Content { get; set; } = [];
+}
+
+internal class VendorVoyageMultimodalContent
+{
+    [JsonProperty("type")]
+    public string Type { get; set; }
+    
+    [JsonProperty("text", NullValueHandling = NullValueHandling.Ignore)]
+    public string? Text { get; set; }
+    
+    [JsonProperty("image_url", NullValueHandling = NullValueHandling.Ignore)]
+    public string? ImageUrl { get; set; }
+    
+    [JsonProperty("image_base64", NullValueHandling = NullValueHandling.Ignore)]
+    public string? ImageBase64 { get; set; }
+
+    [JsonProperty("video_url", NullValueHandling = NullValueHandling.Ignore)]
+    public string? VideoUrl { get; set; }
+    
+    [JsonProperty("video_base64", NullValueHandling = NullValueHandling.Ignore)]
+    public string? VideoBase64 { get; set; }
 }

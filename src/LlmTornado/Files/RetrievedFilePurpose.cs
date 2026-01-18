@@ -57,7 +57,13 @@ public enum RetrievedFilePurpose
     ///     Batch API output file.
     /// </summary>
     [EnumMember(Value = "batch_output")]
-    BatchOutput
+    BatchOutput,
+    
+    /// <summary>
+    ///     OCR.
+    /// </summary>
+    [EnumMember(Value = "ocr")]
+    Ocr
 }
 
 /// <summary>
@@ -77,6 +83,7 @@ public static class RetrievedFilePurposeExtensions
             FilePurpose.Assistants => RetrievedFilePurpose.Assistants,
             FilePurpose.Agent => RetrievedFilePurpose.Agent,
             FilePurpose.Batch => RetrievedFilePurpose.Batch,
+            FilePurpose.Ocr => RetrievedFilePurpose.Ocr,
             _ => RetrievedFilePurpose.Finetune
         };
     }
