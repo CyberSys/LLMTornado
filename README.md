@@ -40,7 +40,10 @@ LLM Tornado is a .NET provider-agnostic SDK that empowers developers to build, o
  <h4>➡️ Get started in minutes – <a href="https://llmtornado.ai/getting-started">Quickstart</a> ⬅️</h4>
 </div>
 
-## 🔥 News 2025
+## 🔥 News 2026
+- 26/01 - [Ivy Framework](https://ivy.app) uses `LlmTornado.Agents` to build their [AI Components](https://github.com/Ivy-Interactive/Ivy-Examples/pull/362). `/ocr` endpoint is implemented for Mistral. `/files` endpoint support is extended to all supported providers.
+
+## News 2025
 - 25/12 - [Upstage](https://www.upstage.ai) connector is implemented. `/batch` endpoint is implemented for OpenAI, Anthropic, and Google. `/videos` endpoint now supports OpenAI/Sora.
 - 25/11 - [Flowbite Blazor](https://github.com/themesberg/flowbite-blazor) uses LLM Tornado to build their [AI Chat](https://flowbite-blazor.org/docs/ai/chat) WASM component. [Requesty](https://www.requesty.ai) connector is implemented. `/tokenize` endpoint is implemented for all Providers supporting the feature.
 - 25/10 - LLM Tornado is featured in [dotInsights](https://blog.jetbrains.com/dotnet/2025/10/06/dotinsights-october-2025) by [JetBrains](https://www.jetbrains.com). [Microsoft](https://www.microsoft.com) uses LLM Tornado in [Generative AI for Beginners .NET](https://github.com/microsoft/Generative-AI-for-beginners-dotnet). Interoperability with [Microsoft.Extensions.AI](https://github.com/dotnet/extensions) is launched. [Skills](https://llmtornado.ai/llmtornado/anthropic-specific/skills) protocol is implemented.
