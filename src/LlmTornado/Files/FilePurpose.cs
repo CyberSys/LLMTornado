@@ -51,5 +51,11 @@ public enum FilePurpose
     ///     Flexible file type for any purpose.
     /// </summary>
     [EnumMember(Value = "evals")]
-    Evals
+    Evals,
+    
+    /// <summary>
+    ///     OCR.
+    /// </summary>
+    [EnumMember(Value = "ocr")]
+    Ocr
 }

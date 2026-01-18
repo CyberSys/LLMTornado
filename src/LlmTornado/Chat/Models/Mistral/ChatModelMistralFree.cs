@@ -171,6 +171,16 @@ public class ChatModelMistralFree : IVendorModelClassProvider
     public readonly ChatModel Pixtral = ModelPixtral;
     
     /// <summary>
+    /// Mistral Small Creative - Labs model released December 2025 for creative writing tasks.
+    /// </summary>
+    public static readonly ChatModel ModelMistralSmallCreative = new ChatModel("labs-mistral-small-creative", LLmProviders.Mistral, 32_000);
+    
+    /// <summary>
+    /// <inheritdoc cref="ModelMistralSmallCreative"/>
+    /// </summary>
+    public readonly ChatModel MistralSmallCreative = ModelMistralSmallCreative;
+    
+    /// <summary>
     /// All known Free models from Mistral.
     /// </summary>
     public static List<IModel> ModelsAll => LazyModelsAll.Value;
@@ -178,7 +188,7 @@ public class ChatModelMistralFree : IVendorModelClassProvider
     private static readonly Lazy<List<IModel>> LazyModelsAll = new Lazy<List<IModel>>(() => [
         ModelMistralSmall2503, ModelMistralSmall, ModelPixtral, ModelDevstralSmall2505, ModelMagistralSmall2506, ModelMagistralSmall2507, 
         ModelMistralSmall2506, ModelDevstralSmall2507, ModelDevstralSmall2512, ModelVoxtralSmall2507, ModelVoxtralMini2507, ModelMagistralSmall2509,
-        ModelMistralLarge2512, ModelMinistral3b2512, ModelMinistral8b2512, ModelMinistral14b2512
+        ModelMistralLarge2512, ModelMinistral3b2512, ModelMinistral8b2512, ModelMinistral14b2512, ModelMistralSmallCreative
     ]);
 
     /// <summary>

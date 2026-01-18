@@ -73,6 +73,25 @@ public class FileUploadExpiration
 public class FileUploadRequest
 {
     /// <summary>
+    /// Creates a request to upload a file from a local path.
+    /// </summary>
+    /// <param name="path">Path to the file.</param>
+    /// <param name="purpose">Purpose of the file.</param>
+    public FileUploadRequest(string path, FilePurpose purpose)
+    {
+        Bytes = System.IO.File.ReadAllBytes(path);
+        Name = System.IO.Path.GetFileName(path);
+        Purpose = purpose;
+    }
+
+    /// <summary>
+    /// Creates an empty file upload request.
+    /// </summary>
+    public FileUploadRequest()
+    {
+    }
+
+    /// <summary>
     /// Bytes of the file.
     /// </summary>
     public byte[] Bytes { get; set; }
@@ -104,8 +123,18 @@ public class FileUploadRequest
     
     internal FileUploadRequestStates? InternalState { get; set; } 
     
-    private static string GetPurpose(FilePurpose purpose)
+    private static string GetPurpose(FilePurpose purpose, LLmProviders provider)
     {
+        // purposes supported only by specific providers
+        if (provider is LLmProviders.Mistral)
+        {
+            if (purpose is FilePurpose.Ocr)
+            {
+                return "ocr";
+            }
+        }
+        
+        // general fallback
         return purpose switch
         {
             FilePurpose.Finetune => "fine-tune",
@@ -115,7 +144,7 @@ public class FileUploadRequest
             FilePurpose.Vision => "vision",
             FilePurpose.UserData => "user_data",
             FilePurpose.Evals => "evals",
-            _ => string.Empty
+            _ => "user_data"
         };
     }
     
@@ -137,33 +166,38 @@ public class FileUploadRequest
             _ => JsonConvert.DeserializeObject<TornadoFile>(jsonData)
         };
     }
+
+    private static object SerializeOpenAiLike(FileUploadRequest x, IEndpointProvider y)
+    {
+        ByteArrayContent bc = new ByteArrayContent(x.Bytes);
+        StringContent sc = new StringContent(x.Purpose is null ? "user_data" : GetPurpose(x.Purpose.Value, y.Provider));
+                
+        MultipartFormDataContent content = new MultipartFormDataContent();
+        content.Add(sc, "purpose");
+        content.Add(bc, "file", x.Name);
+                
+        if (x.Expiration is not null)
+        {
+            string anchorValue = GetExpirationAnchor(x.Expiration.Anchor);
+            string secondsValue = x.Expiration.Seconds.ToString();
+                    
+            StringContent anchorContent = new StringContent(anchorValue);
+            content.Add(anchorContent, "expires_after[anchor]");
+                    
+            StringContent secondsContent = new StringContent(secondsValue);
+            content.Add(secondsContent, "expires_after[seconds]");
+        }
+
+        return content;
+    }
     
     private static readonly Dictionary<LLmProviders, Func<FileUploadRequest, IEndpointProvider, object>> SerializeMap = new Dictionary<LLmProviders, Func<FileUploadRequest, IEndpointProvider, object>>
     {
         { 
-            LLmProviders.OpenAi, (x, y) =>
-            {
-                ByteArrayContent bc = new ByteArrayContent(x.Bytes);
-                StringContent sc = new StringContent(x.Purpose is null ? "user_data" : GetPurpose(x.Purpose.Value));
-                
-                MultipartFormDataContent content = new MultipartFormDataContent();
-                content.Add(sc, "purpose");
-                content.Add(bc, "file", x.Name);
-                
-                if (x.Expiration is not null)
-                {
-                    string anchorValue = GetExpirationAnchor(x.Expiration.Anchor);
-                    string secondsValue = x.Expiration.Seconds.ToString();
-                    
-                    StringContent anchorContent = new StringContent(anchorValue);
-                    content.Add(anchorContent, "expires_after[anchor]");
-                    
-                    StringContent secondsContent = new StringContent(secondsValue);
-                    content.Add(secondsContent, "expires_after[seconds]");
-                }
-
-                return content;
-            }
+            LLmProviders.OpenAi, SerializeOpenAiLike
+        },
+        { 
+            LLmProviders.Mistral, SerializeOpenAiLike
         },
         { 
             LLmProviders.Anthropic, (x, y) =>
@@ -202,7 +236,7 @@ public class FileUploadRequest
             LLmProviders.Zai, (x, y) =>
             {
                 ByteArrayContent bc = new ByteArrayContent(x.Bytes);
-                StringContent sc = new StringContent(x.Purpose is null ? "agent" : GetPurpose(x.Purpose.Value));
+                StringContent sc = new StringContent(x.Purpose is null ? "agent" : GetPurpose(x.Purpose.Value, y.Provider));
                 
                 MultipartFormDataContent content = new MultipartFormDataContent();
                 content.Add(sc, "purpose");
@@ -218,6 +252,8 @@ public class FileUploadRequest
     /// </summary>
     public TornadoRequestContent Serialize(IEndpointProvider provider)
     {
-        return SerializeMap.TryGetValue(provider.Provider, out Func<FileUploadRequest, IEndpointProvider, object>? serializerFn) ? new TornadoRequestContent(serializerFn.Invoke(this, provider), null, null, provider, CapabilityEndpoints.Files) : new TornadoRequestContent(string.Empty, null, null, provider, CapabilityEndpoints.Files);
+        return SerializeMap.TryGetValue(provider.Provider, out Func<FileUploadRequest, IEndpointProvider, object>? serializerFn) ? 
+            new TornadoRequestContent(serializerFn.Invoke(this, provider), null, null, provider, CapabilityEndpoints.Files) : 
+            new TornadoRequestContent(string.Empty, null, null, provider, CapabilityEndpoints.Files);
     }
 }
