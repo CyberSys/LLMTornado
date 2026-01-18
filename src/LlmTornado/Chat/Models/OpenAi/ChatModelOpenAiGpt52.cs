@@ -39,6 +39,19 @@ public class ChatModelOpenAiGpt52 : IVendorModelClassProvider
     public readonly ChatModel V52Pro = ModelV52Pro;
     
     /// <summary>
+    /// GPT-5.2-Codex is a version of GPT-5.2 optimized for agentic coding tasks in Codex or similar environments.
+    /// </summary>
+    public static readonly ChatModel ModelV52Codex = new ChatModel("gpt-5.2-codex", LLmProviders.OpenAi, 400_000, [])
+    {
+        EndpointCapabilities = [ ChatModelEndpointCapabilities.Responses, ChatModelEndpointCapabilities.Batch ]
+    };
+
+    /// <summary>
+    /// <inheritdoc cref="ModelV52Codex"/>
+    /// </summary>
+    public readonly ChatModel V52Codex = ModelV52Codex;
+    
+    /// <summary>
     /// Latest snapshot of GPT-5.2 chat model. The model powering ChatGPT.
     /// </summary>
     public static readonly ChatModel ModelV52ChatLatest = new ChatModel("gpt-5.2-chat-latest", LLmProviders.OpenAi, 400_000, [])
@@ -57,7 +70,7 @@ public class ChatModelOpenAiGpt52 : IVendorModelClassProvider
     public static List<IModel> ModelsAll => LazyModelsAll.Value;
 
     private static readonly Lazy<List<IModel>> LazyModelsAll = new Lazy<List<IModel>>(() => [
-        ModelV52, ModelV52Pro, ModelV52ChatLatest
+        ModelV52, ModelV52Pro, ModelV52ChatLatest, ModelV52Codex
     ]);
     
     /// <summary>

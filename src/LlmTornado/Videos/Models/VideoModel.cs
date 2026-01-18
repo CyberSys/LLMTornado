@@ -1,10 +1,8 @@
 using System.Collections.Generic;
-using LlmTornado.Chat.Models;
 using LlmTornado.Code;
 using LlmTornado.Code.Models;
 using LlmTornado.Videos.Models.Google;
 using LlmTornado.Videos.Models.OpenAi;
-using LlmTornado.Models;
 
 namespace LlmTornado.Videos.Models;
 
@@ -55,8 +53,23 @@ public class VideoModel : ModelBase
     public VideoModel(string name, string? ownedBy = null, LLmProviders? provider = null)
     {
         Name = name;
-        OwnedBy = ownedBy ?? "google";
+        OwnedBy = ownedBy;
         Provider = provider ?? GetProvider(name) ?? LLmProviders.Google;
+    }
+
+    /// <summary>
+    /// Represents a Model with the given name.
+    /// </summary>
+    /// <param name="name">The id/name of the model.</param>
+    /// <param name="ownedBy"></param>
+    /// <param name="provider"></param>
+    /// <param name="aliases"></param>
+    public VideoModel(string name, string? ownedBy, LLmProviders? provider, List<string> aliases)
+    {
+        Name = name;
+        OwnedBy = ownedBy;
+        Provider = provider ?? GetProvider(name) ?? LLmProviders.Google;
+        Aliases = aliases;
     }
 
     /// <summary>

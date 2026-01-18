@@ -94,11 +94,12 @@ public class AudioModel : ModelBase
     /// <param name="name"></param>
     /// <param name="provider"></param>
     /// <param name="contextTokens"></param>
-    public AudioModel(string name, LLmProviders provider, int contextTokens)
+    public AudioModel(string name, LLmProviders provider, int contextTokens, List<string>? aliases = null)
     {
         Name = name;
         Provider = provider;
         ContextTokens = contextTokens;
+        Aliases = aliases ?? [];
     }
     
     /// <summary>

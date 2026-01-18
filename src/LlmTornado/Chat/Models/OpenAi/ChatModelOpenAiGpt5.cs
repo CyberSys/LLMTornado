@@ -39,7 +39,7 @@ public class ChatModelOpenAiGpt5 : IVendorModelClassProvider
     /// <summary>
     /// A cost-efficient version of GPT Audio. It accepts audio inputs and outputs, and can be used in the Chat Completions REST API.
     /// </summary>
-    public static readonly ChatModel ModelAudio = new ChatModel("gpt-audio", LLmProviders.OpenAi, 128_000, [ "gpt-audio-2025-08-28" ])
+    public static readonly ChatModel ModelAudio = new ChatModel("gpt-audio", LLmProviders.OpenAi, 128_000)
     {
         EndpointCapabilities = [ ChatModelEndpointCapabilities.Chat ]
     };
@@ -52,7 +52,7 @@ public class ChatModelOpenAiGpt5 : IVendorModelClassProvider
     /// <summary>
     /// A cost-efficient version of GPT Audio. It accepts audio inputs and outputs, and can be used in the Chat Completions REST API.
     /// </summary>
-    public static readonly ChatModel ModelAudioMini = new ChatModel("gpt-audio-mini", LLmProviders.OpenAi, 128_000, [ "gpt-audio-mini-2025-10-06" ])
+    public static readonly ChatModel ModelAudioMini = new ChatModel("gpt-audio-mini", LLmProviders.OpenAi, 128_000)
     {
         EndpointCapabilities = [ ChatModelEndpointCapabilities.Chat ]
     };
@@ -99,12 +99,25 @@ public class ChatModelOpenAiGpt5 : IVendorModelClassProvider
     public readonly ChatModel V5Nano = ModelV5Nano;
 
     /// <summary>
+    /// Realtime Mini - optimized for low-latency, real-time interactions.
+    /// </summary>
+    public static readonly ChatModel ModelRealtimeMini = new ChatModel("gpt-realtime-mini", LLmProviders.OpenAi, 128_000, ["gpt-realtime-mini-2025-12-15", "gpt-realtime-mini-2025-10-06"])
+    {
+        EndpointCapabilities = [ ChatModelEndpointCapabilities.Responses ]
+    };
+
+    /// <summary>
+    /// <inheritdoc cref="ModelRealtimeMini"/>
+    /// </summary>
+    public readonly ChatModel RealtimeMini = ModelRealtimeMini;
+
+    /// <summary>
     /// All known GPT-5 models from OpenAI.
     /// </summary>
     public static List<IModel> ModelsAll => LazyModelsAll.Value;
 
     private static readonly Lazy<List<IModel>> LazyModelsAll = new Lazy<List<IModel>>(() => [
-        ModelV5, ModelV5Mini, ModelV5Nano, ModelV5Codex, ModelV5Pro, ModelAudioMini
+        ModelV5, ModelV5Mini, ModelV5Nano, ModelV5Codex, ModelV5Pro, ModelAudioMini, ModelRealtimeMini
     ]);
     
     /// <summary>
