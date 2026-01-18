@@ -16,12 +16,6 @@ public class EmbeddingRequestVendorVoyageExtensions
     /// Whether to truncate the input texts to fit within the context length. Defaults to true.
     /// </summary>
     public bool? Truncation { get; set; }
-    
-    /// <summary>
-    /// The data type for the embeddings to be returned. Defaults to float.
-    /// </summary>
-    [Obsolete("Will be removed. Please use OutputDtype on the EmbeddingRequest itself.")]
-    public EmbeddingOutputDtypes? OutputDtype { get; set; }
 }
 
 /// <summary>

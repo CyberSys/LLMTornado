@@ -191,6 +191,58 @@ public class MultimodalContentImageBase64 : MultimodalContent
     }
 }
 
+/// <summary>
+/// Represents a piece of video content from a URL.
+/// </summary>
+public class MultimodalContentVideoUrl : MultimodalContent
+{
+    /// <summary>
+    /// <inheritdoc/>
+    /// </summary>
+    public override string Type => "video_url";
+    
+    /// <summary>
+    /// The URL of the video.
+    /// </summary>
+    [JsonProperty("video_url")]
+    public string VideoUrl { get; set; }
+
+    /// <summary>
+    /// Creates a new piece of video content from a URL.
+    /// </summary>
+    /// <param name="videoUrl">The URL of the video.</param>
+    public MultimodalContentVideoUrl(string videoUrl)
+    {
+        VideoUrl = videoUrl;
+    }
+}
+
+/// <summary>
+/// Represents a piece of video content from a base64 encoded string.
+/// </summary>
+public class MultimodalContentVideoBase64 : MultimodalContent
+{
+    /// <summary>
+    /// <inheritdoc/>
+    /// </summary>
+    public override string Type => "video_base64";
+
+    /// <summary>
+    /// The base64 encoded video.
+    /// </summary>
+    [JsonProperty("video_base64")]
+    public string VideoBase64 { get; set; }
+
+    /// <summary>
+    /// Creates a new piece of video content from a base64 encoded string.
+    /// </summary>
+    /// <param name="videoBase64">The base64 encoded video.</param>
+    public MultimodalContentVideoBase64(string videoBase64)
+    {
+        VideoBase64 = videoBase64;
+    }
+}
+
 internal class MultimodalContentConverter : JsonConverter<MultimodalContent>
 {
     public override void WriteJson(JsonWriter writer, MultimodalContent? value, JsonSerializer serializer)
@@ -210,6 +262,12 @@ internal class MultimodalContentConverter : JsonConverter<MultimodalContent>
                 break;
             case MultimodalContentImageBase64 imageBase64:
                 o.Add("image_base64", imageBase64.ImageBase64);
+                break;
+            case MultimodalContentVideoUrl videoUrl:
+                o.Add("video_url", videoUrl.VideoUrl);
+                break;
+            case MultimodalContentVideoBase64 videoBase64:
+                o.Add("video_base64", videoBase64.VideoBase64);
                 break;
         }
 

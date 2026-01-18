@@ -30,6 +30,12 @@ public class EmbeddingModelVoyage : BaseVendorModelProvider
     public readonly EmbeddingModelVoyageGen35 Gen35 = new EmbeddingModelVoyageGen35();
 
     /// <summary>
+    /// Voyage 4 models.
+    /// </summary>
+    public readonly EmbeddingModelVoyageGen4 Gen4 = new EmbeddingModelVoyageGen4();
+
+
+    /// <summary>
     /// Voyage contextual models.
     /// </summary>
     public readonly EmbeddingModelVoyageContextual Contextual = new EmbeddingModelVoyageContextual();
@@ -75,6 +81,7 @@ public class EmbeddingModelVoyage : BaseVendorModelProvider
         ..EmbeddingModelVoyageGen2.ModelsAll,
         ..EmbeddingModelVoyageGen3.ModelsAll,
         ..EmbeddingModelVoyageGen35.ModelsAll,
+        ..EmbeddingModelVoyageGen4.ModelsAll,
         ..EmbeddingModelVoyageContextual.ModelsAll,
         ..EmbeddingModelVoyageMultimodal.ModelsAll
     ]);

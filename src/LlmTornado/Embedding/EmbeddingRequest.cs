@@ -4,6 +4,7 @@ using System.Linq;
 using LlmTornado.Chat.Vendors.Anthropic;
 using LlmTornado.Chat.Vendors.Cohere;
 using LlmTornado.Code;
+using LlmTornado.Chat;
 using LlmTornado.Embedding.Models;
 using LlmTornado.Embedding.Vendors.Google;
 using LlmTornado.Embedding.Vendors.Mistral;
@@ -232,6 +233,12 @@ public class EmbeddingRequest
 	/// </summary>
 	[JsonIgnore]
 	public IList<string>? InputVector { get; set; }
+
+    /// <summary>
+    /// Multimodal input.
+    /// </summary>
+    [JsonIgnore]
+    public IList<IList<ChatMessagePart>>? MultimodalInput { get; set; }
 
 	[JsonProperty("input")]
 	internal object InputSerialized { get; set; }
