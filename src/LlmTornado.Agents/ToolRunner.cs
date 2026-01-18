@@ -18,6 +18,29 @@ namespace LlmTornado.Agents;
 public static class ToolRunner
 {
     /// <summary>
+    /// Normalizes arguments string for JSON deserialization.
+    /// Returns "{}" for null, empty, whitespace, literal "null", "undefined", or empty array "[]".
+    /// This handles edge cases where LLMs send null, empty string, or omit arguments entirely.
+    /// </summary>
+    public static string NormalizeArguments(string? arguments)
+    {
+        if (string.IsNullOrWhiteSpace(arguments))
+        {
+            return "{}";
+        }
+        
+        string trimmed = arguments.Trim();
+        
+        // Handle JSON null literal, undefined, and empty array
+        if (trimmed is "null" or "undefined" or "[]")
+        {
+            return "{}";
+        }
+        
+        return arguments;
+    }
+
+    /// <summary>
     /// Process tool result through agent's ToolResultProcessor if configured
     /// </summary>
     private static async ValueTask<FunctionResult> ProcessToolResult(TornadoAgent agent, FunctionCall call, FunctionResult result)
@@ -45,7 +68,8 @@ public static class ToolRunner
         
         if (tool?.Delegate is not null)
         {
-            MethodInvocationResult invocationResult = await call.Invoke(call.Arguments ?? "{}").ConfigureAwait(false);
+            string normalizedArgs = NormalizeArguments(call.Arguments);
+            MethodInvocationResult invocationResult = await call.Invoke(normalizedArgs).ConfigureAwait(false);
             FunctionResult result = call.Result ?? (invocationResult.InvocationSuccessful
                 ? new FunctionResult(call, new
                 {
@@ -64,15 +88,22 @@ public static class ToolRunner
 
     private static string GetInputFromFunctionArgs(string? args)
     {
-        if (!string.IsNullOrEmpty(args))
+        string normalizedArgs = NormalizeArguments(args);
+        string errorMessage = string.Empty;
+        try
         {
-            using JsonDocument argumentsJson = JsonDocument.Parse(args!);
+            using JsonDocument argumentsJson = JsonDocument.Parse(normalizedArgs);
             if (argumentsJson.RootElement.TryGetProperty("input", out JsonElement jValue))
             {
                 return jValue.GetString() ?? string.Empty;
             }
         }
-        return "Error Could not deserialize json argument Input from last function call";
+        catch (Exception ex)
+        {
+            errorMessage = ex.Message;
+        }
+        
+        return $"Error Could not deserialize json argument Input from last function call ERROR: {errorMessage}";
     }
 
     /// <summary>
@@ -88,14 +119,16 @@ public static class ToolRunner
         if (!agent.McpTools.TryGetValue(call.Name, out Tool? tool))
             throw new Exception($"I don't have a tool called {call.Name}");
 
-        Dictionary<string, object?>? dict = null;
+        string normalizedArgs = NormalizeArguments(call.Arguments);
+        Dictionary<string, object?>? dict;
 
-        //Need to check if function has required parameters and if so, parse them from the call.FunctionArguments
-        if (call.Arguments != null)
+        try
         {
-            if (!JsonUtility.IsValidJson(call.Arguments))
-                throw new System.Text.Json.JsonException($"Function arguments for {call.Name} are not valid JSON");
-            dict = JsonConvert.DeserializeObject<Dictionary<string, object?>>(call.Arguments);
+            dict = JsonConvert.DeserializeObject<Dictionary<string, object?>>(normalizedArgs);
+        }
+        catch (Newtonsoft.Json.JsonException ex)
+        {
+            throw new System.Text.Json.JsonException($"Function arguments for {call.Name} are not valid JSON: {call.Arguments}", ex);
         }
 
         // call the tool on MCP server, pass args
