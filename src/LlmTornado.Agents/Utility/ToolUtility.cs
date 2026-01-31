@@ -25,8 +25,11 @@ public static class ToolUtility
     /// Setup TornadoAgent as a tool.
     /// </summary>
     /// <param name="agent"></param>
+    /// <param name="description">Description on when to use this agent as a tool </param>
+    /// <param name="toolName">Name of the tool or default to "_" + agent.Id </param>
+    /// <param name="inputDescription">Description of the input parameter for the tool default = "Input string for the Agent"</param>
     /// <returns></returns>
-    public static Tool AsTool(this TornadoAgent agent)
+    public static Tool AsTool(this TornadoAgent agent, string? description = null, string? toolName = null, string? inputDescription = null)
     {
         return new Tool(
             function: 
@@ -34,16 +37,40 @@ public static class ToolUtility
                 {
                     return (await agent.Run(input)).Messages.Last().GetMessageContent();
                 },
-            name: agent.Id,
-            description: agent.Instructions,
+            name: toolName ?? "_" + agent.Id,
+            description: description ?? agent.Instructions,
             metadata: 
+                new ToolMetadata()
+                {
+                    Params = [new ToolParamDefinition("input", new ToolParamString(description: inputDescription ?? "Input string for the Agent", required: true))]
+                }
+        );       
+    }
+    /// <summary>
+    /// Setup TornadoAgent as a tool.
+    /// </summary>
+    /// <param name="agent"></param>
+    /// <param name="description">Description on when to use this agent as a tool </param>
+    /// <param name="toolName">Name of the tool or default to "_" + agent.Id </param>
+    /// <param name="inputDescription">Description of the input parameter for the tool default = "Input string for the Agent"</param>
+    /// <returns></returns>
+    public static Tool AsTool(this TornadoAgent agent)
+    {
+        return new Tool(
+            function:
+                async (string input) =>
+                {
+                    return (await agent.Run(input)).Messages.Last().GetMessageContent();
+                },
+            name:  "_" + agent.Id,
+            description: agent.Instructions,
+            metadata:
                 new ToolMetadata()
                 {
                     Params = [new ToolParamDefinition("input", new ToolParamString(description: "Input string for the Agent", required: true))]
                 }
-        );       
+        );
     }
-
     /// <summary>
     /// Converts a delegate function to a Tornado Tool.
     /// </summary>

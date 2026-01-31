@@ -15,6 +15,7 @@ using LlmTornado.Code.Vendor;
 using LlmTornado.Common;
 using LlmTornado.Contrib;
 using LlmTornado.Files;
+using LlmTornado.Models;
 using LlmTornado.Responses;
 using Newtonsoft.Json.Linq;
 
@@ -1527,7 +1528,7 @@ public partial class ChatDemo : DemoBase
                 strict: true
             ),
             Temperature = 0,
-            Model = "gemini-2.0-flash-001"
+            Model = ChatModel.Google.Gemini.Gemini25Flash
         };
         
         ChatResult? response = await Program.Connect().Chat.CreateChatCompletion(request);
