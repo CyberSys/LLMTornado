@@ -77,7 +77,7 @@ public class VendorAnthropicToolFunction : IVendorAnthropicChatRequestTool
     public object? Parameters { get; set; }
     
     /// <summary>
-    ///     Enable strict mode for guaranteed schema validation. Requires beta header structured-outputs-2025-11-13.
+    ///     Enable strict mode for guaranteed schema validation on tool inputs.
     /// </summary>
     [JsonProperty("strict")]
     public bool? Strict { get; set; }

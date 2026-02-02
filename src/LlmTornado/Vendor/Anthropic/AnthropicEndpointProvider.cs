@@ -225,43 +225,6 @@ public class AnthropicEndpointProvider : BaseEndpointProvider, IEndpointProvider
         public string? StopSequence { get; set; }
     }
     
-    private static bool RequiresStructuredOutputsHeader(object? data)
-    {
-        if (data is not ChatRequest chatRequest)
-        {
-            return false;
-        }
-        
-        // Check if model supports structured outputs (Claude Sonnet 4.5, Claude Opus 4.5, Claude Haiku 4.5 or Claude Opus 4.1)
-        if (!IsStructuredOutputsCompatibleModel(chatRequest.Model ?? ChatModel.Anthropic.Claude45.Sonnet250929))
-        {
-            return false;
-        }
-        
-        // Check if output_format is present
-        if (chatRequest.ResponseFormat?.Type is ChatRequestResponseFormatTypes.StructuredJson)
-        {
-            return true;
-        }
-
-        // Check if any tools have strict mode enabled
-        return chatRequest.Tools?.Any(x => x.Strict ?? false) ?? false;
-    }
-    
-    private static bool IsStructuredOutputsCompatibleModel(string? modelName)
-    {
-        if (modelName is null)
-        {
-            return false;
-        }
-        
-        // Structured outputs available for Claude Sonnet 4.5, Claude Opus 4.5, Claude Haiku 4.5, and Claude Opus 4.1
-        return modelName.StartsWith("claude-sonnet-4-5", StringComparison.OrdinalIgnoreCase) ||
-               modelName.StartsWith("claude-opus-4-5", StringComparison.OrdinalIgnoreCase) ||
-               modelName.StartsWith("claude-haiku-4-5", StringComparison.OrdinalIgnoreCase) ||
-               modelName.StartsWith("claude-opus-4-1", StringComparison.OrdinalIgnoreCase);
-    }
-    
     private static bool RequiresEffortHeader(object? data)
     {
         if (data is not ChatRequest chatRequest)
@@ -778,12 +741,6 @@ public class AnthropicEndpointProvider : BaseEndpointProvider, IEndpointProvider
                 "code-execution-2025-08-25", 
                 "search-results-2025-06-09"
             ];
-            
-            // Add structured outputs beta header if applicable
-            if (RequiresStructuredOutputsHeader(sourceObject))
-            {
-                betaHeaders.Add("structured-outputs-2025-11-13");
-            }
             
             // Add effort beta header if applicable (Claude Opus 4.5)
             if (RequiresEffortHeader(sourceObject))

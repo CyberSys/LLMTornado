@@ -542,7 +542,7 @@ internal class VendorAnthropicChatRequest
         public int? BudgetTokens { get; set; }
     }
     
-    internal class VendorAnthropicChatRequestOutputFormat
+    internal class VendorAnthropicChatRequestOutputConfigFormat
     {
         [JsonProperty("type")]
         public string Type { get; set; }
@@ -555,6 +555,9 @@ internal class VendorAnthropicChatRequest
     {
         [JsonProperty("effort")]
         public string? Effort { get; set; }
+        
+        [JsonProperty("format")]
+        public VendorAnthropicChatRequestOutputConfigFormat? Format { get; set; }
     }
     
     [JsonProperty("messages")]
@@ -590,9 +593,6 @@ internal class VendorAnthropicChatRequest
 
     [JsonProperty("mcp_servers")]
     public AnthropicMcpServer[]? McpServers { get; set; }
-    
-    [JsonProperty("output_format")]
-    public VendorAnthropicChatRequestOutputFormat? OutputFormat { get; set; }
     
     [JsonProperty("output_config")]
     public VendorAnthropicChatRequestOutputConfig? OutputConfig { get; set; }
@@ -690,7 +690,8 @@ internal class VendorAnthropicChatRequest
         
         if (request.ResponseFormat?.Type is ChatRequestResponseFormatTypes.StructuredJson && request.ResponseFormat.Schema?.Schema is not null)
         {
-            OutputFormat = new VendorAnthropicChatRequestOutputFormat
+            OutputConfig ??= new VendorAnthropicChatRequestOutputConfig();
+            OutputConfig.Format = new VendorAnthropicChatRequestOutputConfigFormat
             {
                 Type = "json_schema",
                 Schema = request.ResponseFormat.Schema.Schema
@@ -759,10 +760,8 @@ internal class VendorAnthropicChatRequest
             
             if (effortValue is not null)
             {
-                OutputConfig = new VendorAnthropicChatRequestOutputConfig
-                {
-                    Effort = effortValue
-                };
+                OutputConfig ??= new VendorAnthropicChatRequestOutputConfig();
+                OutputConfig.Effort = effortValue;
             }
         }
     }
