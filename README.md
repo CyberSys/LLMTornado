@@ -503,11 +503,16 @@ _Have you built something with Tornado? Let us know about it in the issues to ge
 
 ## 🤝 Partners
 
+### Sponsored by
+
 <a href="https://www.scio.cz/prace-u-nas" target="_blank">
     <figure>
         <img alt="Scio" width="300" alt="image" src="https://github.com/user-attachments/assets/6a5aa9b3-af8b-4194-8dbe-c3add79763e7" />
     </figure>
 </a>
+
+### Powered by
+[![JetBrains logo.](https://resources.jetbrains.com/storage/products/company/brand/logos/jetbrains.svg)](https://jb.gg/OpenSource)
 
 ## 📚 Contributing
 

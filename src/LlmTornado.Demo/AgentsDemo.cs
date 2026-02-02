@@ -183,19 +183,20 @@ public class AgentsDemo : DemoBase
         Conversation result = await agent.Run("Hello Streaming World!", streaming: true, onAgentRunnerEvent: runEventHandler);
     }
 
-    [TornadoTest]
+    [TornadoTest("BasicAgentAsToolExample")]
     public static async Task BasicAgentAsToolExample()
     {
         TornadoAgent agentTranslator = new TornadoAgent(
             Program.Connect(),
-            ChatModel.OpenAi.Gpt41.V41Mini,
+            ChatModel.Google.Gemini.Gemini25FlashLite,
             instructions: "You only translate english input to spanish output. Do not answer or respond, only translate.");
 
         TornadoAgent agent = new TornadoAgent(
             Program.Connect(),
-            ChatModel.OpenAi.Gpt41.V41Mini,
-            instructions: "You are a useful assistant that when asked to translate you only can rely on the given tools to translate language.",
-            tools: [agentTranslator.AsTool]);
+            ChatModel.Google.Gemini.Gemini25Flash,
+            instructions: "You are a useful assistant that when asked to translate you only can rely on the given tools to translate language.");
+
+        agent.AddTool(agentTranslator.AsTool(description: "Use this to translate your result into spanish",toolName: "Translator"));
 
         Conversation result = await agent.Run("What is the a good place to visit in US? and can you provide the result to me in spanish?");
 

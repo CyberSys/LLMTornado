@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using LlmTornado.Code;
 using LlmTornado.Code.Models;
 
@@ -88,101 +89,120 @@ public class ChatModelGoogleGemini : IVendorModelClassProvider
     /// <summary>
     /// Fast and versatile performance across a diverse variety of tasks (stable).
     /// </summary>
+    [Obsolete("MARCH 31 WILL BE THE END :( Use ModelGeminiFlashLatest instead.")]
     public static readonly ChatModel ModelGemini2Flash001 = new ChatModel("gemini-2.0-flash-001", LLmProviders.Google, 1_000_000);
-    
+
     /// <summary>
     /// <inheritdoc cref="ModelGemini2Flash001"/>
     /// </summary>
+    [Obsolete("MARCH 31 WILL BE THE END :( Use ModelGeminiFlashLatest instead.")]
     public readonly ChatModel Gemini2Flash001 = ModelGemini2Flash001;
-    
+
     /// <summary>
     /// Fast and versatile performance across a diverse variety of tasks (latest).
     /// </summary>
+    [Obsolete("MARCH 31 WILL BE THE END :( Use ModelGeminiFlashLatest instead.")]
     public static readonly ChatModel ModelGemini2FlashLatest = new ChatModel("gemini-2.0-flash", LLmProviders.Google, 1_000_000);
-    
+
     /// <summary>
     /// <inheritdoc cref="ModelGemini2FlashLatest"/>
-    /// </summary>
+    [Obsolete("MARCH 31 WILL BE THE END :( Use ModelGeminiFlashLatest instead.")]
     public readonly ChatModel Gemini2FlashLatest = ModelGemini2FlashLatest;
     
     /// <summary>
     /// A Gemini 2.0 Flash model optimized for cost efficiency and low latency (stable).
     /// </summary>
+    [Obsolete("MARCH 31 WILL BE THE END :( Use GeminiFlashLiteLatest instead.")]
     public static readonly ChatModel ModelGemini2FlashLite001 = new ChatModel("gemini-2.0-flash-lite-001", LLmProviders.Google, 1_000_000);
     
     /// <summary>
     /// <inheritdoc cref="ModelGemini2FlashLite001"/>
     /// </summary>
+    [Obsolete("MARCH 31 WILL BE THE END :( Use GeminiFlashLiteLatest instead.")]
     public readonly ChatModel Gemini2FlashLite001 = ModelGemini2FlashLite001;
     
     /// <summary>
     /// A Gemini 2.0 Flash model optimized for cost efficiency and low latency (latest).
     /// </summary>
+    [Obsolete("MARCH 31 WILL BE THE END :( Use GeminiFlashLiteLatest instead.")]
     public static readonly ChatModel ModelGemini2FlashLiteLatest = new ChatModel("gemini-2.0-flash-lite", LLmProviders.Google, 1_000_000);
     
     /// <summary>
     /// <inheritdoc cref="ModelGemini2FlashLiteLatest"/>
     /// </summary>
+    [Obsolete("MARCH 31 WILL BE THE END :( Use GeminiFlashLiteLatest instead.")]
     public readonly ChatModel Gemini2FlashLiteLatest = ModelGemini2FlashLiteLatest;
     
     /// <summary>
     /// Complex reasoning tasks such as code and text generation, text editing, problem-solving, data extraction and generation.
     /// </summary>
+    [Obsolete("Use ModelGemini25Pro instead.")]
     public static readonly ChatModel ModelGemini15ProLatest = new ChatModel("gemini-1.5-pro-latest", LLmProviders.Google, 1_000_000);
     
     /// <summary>
     /// <inheritdoc cref="ModelGemini15ProLatest"/>
     /// </summary>
+    [Obsolete("Use ModelGemini25Pro instead.")]
     public readonly ChatModel Gemini15ProLatest = ModelGemini15ProLatest;
-    
+
     /// <summary>
     /// Complex reasoning tasks such as code and text generation, text editing, problem-solving, data extraction and generation.
     /// </summary>
+    [Obsolete("Use ModelGemini25Pro instead.")]
     public static readonly ChatModel ModelGemini15Pro = new ChatModel("gemini-1.5-pro", LLmProviders.Google, 1_000_000);
-    
+
     /// <summary>
     /// <inheritdoc cref="ModelGemini15Pro"/>
     /// </summary>
+    [Obsolete("Use ModelGemini25Pro instead.")]
     public readonly ChatModel Gemini15Pro = ModelGemini15Pro;
-    
+
     /// <summary>
     /// Complex reasoning tasks such as code and text generation, text editing, problem-solving, data extraction and generation.
     /// </summary>
+    [Obsolete("Use ModelGemini25Pro instead.")]
     public static readonly ChatModel ModelGemini15Pro001 = new ChatModel("gemini-1.5-pro-001", LLmProviders.Google, 1_000_000);
-    
+
     /// <summary>
     /// <inheritdoc cref="ModelGemini15Pro001"/>
     /// </summary>
+    [Obsolete("Use ModelGemini25Pro instead.")]
     public readonly ChatModel Gemini15Pro001 = ModelGemini15Pro001;
     
     /// <summary>
     /// Complex reasoning tasks such as code and text generation, text editing, problem-solving, data extraction and generation.
     /// </summary>
+    [Obsolete("Use ModelGemini25Pro instead.")]
     public static readonly ChatModel ModelGemini15Pro002 = new ChatModel("gemini-1.5-pro-002", LLmProviders.Google, 1_000_000);
     
     /// <summary>
     /// <inheritdoc cref="ModelGemini15Pro002"/>
     /// </summary>
+    [Obsolete("Use ModelGemini25Pro instead.")]
     public readonly ChatModel Gemini15Pro002 = ModelGemini15Pro002;
-    
+
     /// <summary>
     /// Gemini 1.5 Flash-8B is a small model designed for lower intelligence tasks.
     /// </summary>
+    [Obsolete("Use ModelGeminiFlashLatest instead.")]
     public static readonly ChatModel ModelGemini15Flash8BLatest = new ChatModel("gemini-1.5-flash-8b-latest", LLmProviders.Google, 1_000_000);
-    
+
     /// <summary>
     /// <inheritdoc cref="ModelGemini15Flash8BLatest"/>
     /// </summary>
+    [Obsolete("Use ModelGeminiFlashLatest instead.")]
     public readonly ChatModel Gemini15Flash8BLatest = ModelGemini15Flash8BLatest;
-    
+
     /// <summary>
     /// Gemini 1.5 Flash-8B is a small model designed for lower intelligence tasks.
     /// </summary>
+    [Obsolete("Use ModelGeminiFlashLatest instead.")]
     public static readonly ChatModel ModelGemini15Flash8B = new ChatModel("gemini-1.5-flash-8b", LLmProviders.Google, 1_000_000);
-    
+
     /// <summary>
     /// <inheritdoc cref="ModelGemini15Flash8B"/>
     /// </summary>
+    [Obsolete("Use ModelGeminiFlashLatest instead.")]
     public readonly ChatModel Gemini15Flash8B = ModelGemini15Flash8B;
     
     /// <summary>
