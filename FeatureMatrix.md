@@ -14,7 +14,7 @@ _Empty field means the feature is unsupported by the provider._
 | **Google** | ✅ | ✅ | ✅ | ✅ | ✅ | | | | | ✅ | ✅ | | ❌ | ✅ |
 | **Cohere** | ✅ | ✅ | ✅ | | | | | | | | ✅ | | | |
 | **DeepSeek** | ✅ | ✅ | | | | | | | | | | ❌ | | |
-| **Groq** | ✅ | ✅ | | ❌ | | | | | | | | | | ❌ |
+| **Groq** | ✅ | ✅ | | ✅ | | ✅ | | | | | | | | ❌ |
 | **Mistral** | ✅ | ✅ | ✅ | ✅ | | ✅ | | | | | | ❌ | ❌ | ❌ |
 | **xAI** | ✅ | ✅ | | | ✅ | | | | ❌ | ✅ | | | | |
 | **MoonshotAI**| ✅ | ✅ | | ✅ | | | | | | | ✅ | | | |

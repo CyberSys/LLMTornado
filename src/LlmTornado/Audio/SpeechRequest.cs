@@ -1,4 +1,4 @@
-﻿using LlmTornado.Audio.Models;
+using LlmTornado.Audio.Models;
 using LlmTornado.Audio.Models.OpenAi;
 using LlmTornado.Models;
 using Newtonsoft.Json;
@@ -44,8 +44,16 @@ public class SpeechRequest
     public SpeechResponseFormat ResponseFormat { get; set; } = SpeechResponseFormat.Mp3;
 
     /// <summary>
-    ///     The speed of tts, must be in range [0.25, 4]
+    ///     The speed of tts, must be in range [0.25, 4]. For Groq the range is [0.5, 5].
     /// </summary>
     [JsonProperty("speed")]
     public float? Speed { get; set; } = 1;
+
+    /// <summary>
+    ///     The sample rate for generated audio (Groq only). 
+    ///     Supported values: 8000, 16000, 22050, 24000, 32000, 44100, 48000.
+    ///     Defaults to 48000 if not specified.
+    /// </summary>
+    [JsonProperty("sample_rate", NullValueHandling = NullValueHandling.Ignore)]
+    public int? SampleRate { get; set; }
 }

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using Newtonsoft.Json;
 
 namespace LlmTornado.Audio;
@@ -34,6 +34,21 @@ public class SpeechResponseFormat
     ///     Requests a response in flac format
     /// </summary>
     public static SpeechResponseFormat Flac => new SpeechResponseFormat("flac");
+
+    /// <summary>
+    ///     Requests a response in wav format
+    /// </summary>
+    public static SpeechResponseFormat Wav => new SpeechResponseFormat("wav");
+
+    /// <summary>
+    ///     Requests a response in ogg format
+    /// </summary>
+    public static SpeechResponseFormat Ogg => new SpeechResponseFormat("ogg");
+
+    /// <summary>
+    ///     Requests a response in mulaw format (8-bit G.711 mu-law)
+    /// </summary>
+    public static SpeechResponseFormat Mulaw => new SpeechResponseFormat("mulaw");
 
     /// <summary>
     ///     Gets the string value for this size to pass to the API

@@ -19,6 +19,11 @@ public class AudioModelGroq : BaseVendorModelProvider
     /// Models by OpenAI.
     /// </summary>
     public readonly AudioModelGroqOpenAi OpenAi = new AudioModelGroqOpenAi();
+    
+    /// <summary>
+    /// Canopy Labs Orpheus TTS models.
+    /// </summary>
+    public readonly AudioModelGroqCanopyLabs CanopyLabs = new AudioModelGroqCanopyLabs();
 
     /// <summary>
     /// All known chat models hosted by Groq.
@@ -53,7 +58,8 @@ public class AudioModelGroq : BaseVendorModelProvider
     public static List<IModel> ModelsAll => LazyModelsAll.Value;
 
     private static readonly Lazy<List<IModel>> LazyModelsAll = new Lazy<List<IModel>>(() => [
-        ..AudioModelGroqOpenAi.ModelsAll
+        ..AudioModelGroqOpenAi.ModelsAll,
+        ..AudioModelGroqCanopyLabs.ModelsAll
     ]);
     
     internal AudioModelGroq()

@@ -33,10 +33,18 @@ public class TranscriptionRequest
     public bool? Stream { get; internal set; }
     
     /// <summary>
-    ///     The audio file to transcribe, in one of these formats: mp3, mp4, mpeg, mpga, m4a, wav, or webm
+    ///     The audio file to transcribe, in one of these formats: mp3, mp4, mpeg, mpga, m4a, wav, or webm.
+    ///     Either File or Url must be provided.
     /// </summary>
     [JsonProperty("file")]
     public AudioFile File { get; set; }
+
+    /// <summary>
+    ///     The audio URL to transcribe (supports Base64 data URLs). Either File or Url must be provided.
+    ///     Supported by Groq. When using Groq's Batch API, only Url is supported.
+    /// </summary>
+    [JsonProperty("url", NullValueHandling = NullValueHandling.Ignore)]
+    public string? Url { get; set; }
 
     /// <summary>
     ///     ID of the model to use. Only whisper-1 is currently available.

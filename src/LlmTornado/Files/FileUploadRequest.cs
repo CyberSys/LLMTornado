@@ -134,6 +134,12 @@ public class FileUploadRequest
             }
         }
         
+        // Groq only supports "batch" purpose
+        if (provider is LLmProviders.Groq)
+        {
+            return "batch";
+        }
+        
         // general fallback
         return purpose switch
         {
@@ -198,6 +204,9 @@ public class FileUploadRequest
         },
         { 
             LLmProviders.Mistral, SerializeOpenAiLike
+        },
+        { 
+            LLmProviders.Groq, SerializeOpenAiLike
         },
         { 
             LLmProviders.Anthropic, (x, y) =>

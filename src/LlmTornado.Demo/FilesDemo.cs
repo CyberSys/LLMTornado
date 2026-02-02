@@ -52,6 +52,17 @@ public class FilesDemo : DemoBase
         Console.WriteLine($"retrieved file id: {retrievedFile?.Id}");
         return uploadedFile.Data;
     }
+    
+    [TornadoTest]
+    public static async Task<TornadoFile?> UploadGroq()
+    {
+        // Groq Files API is for Batch API - purpose is always set to "batch" automatically
+        HttpCallResult<TornadoFile> uploadedFile = await Program.Connect().Files.Upload("Static/Files/batch_sample.jsonl", provider: LLmProviders.Groq);
+        TornadoFile? retrievedFile = await Program.Connect().Files.Get(uploadedFile.Data?.Id, provider: LLmProviders.Groq);
+        Console.WriteLine($"uploaded id: {uploadedFile.Data?.Id}");
+        Console.WriteLine($"retrieved file id: {retrievedFile?.Id}");
+        return uploadedFile.Data;
+    }
 
     [TornadoTest]
     public static async Task<TornadoPagingList<TornadoFile>?> GetAllFilesGoogle()
@@ -126,6 +137,24 @@ public class FilesDemo : DemoBase
     }
     
     [TornadoTest]
+    public static async Task<TornadoPagingList<TornadoFile>?> GetAllFilesGroq()
+    {
+        TornadoPagingList<TornadoFile>? items = await Program.Connect().Files.Get(provider: LLmProviders.Groq);
+
+        if (items is not null)
+        {
+            Console.WriteLine($"Found {items.Items.Count} files.");
+            
+            foreach (TornadoFile item in items.Items)
+            {
+                Console.WriteLine(item.Id);
+            }
+        }
+
+        return items;
+    }
+    
+    [TornadoTest]
     public static async Task<bool> DeleteFileOpenAi()
     {
         HttpCallResult<TornadoFile> uploadedFile = await Program.Connect().Files.Upload("Static/Files/sample.pdf", FilePurpose.Assistants, provider: LLmProviders.OpenAi);
@@ -150,6 +179,15 @@ public class FilesDemo : DemoBase
         HttpCallResult<TornadoFile> uploadedFile = await Program.Connect().Files.Upload("Static/Files/sample.pdf", provider: LLmProviders.Anthropic);
         HttpCallResult<DeletedTornadoFile> deleteResult = await Program.Connect().Files.Delete(uploadedFile.Data.Id, provider: LLmProviders.Anthropic);
         HttpCallResult<DeletedTornadoFile> deleteResult2 = await Program.Connect(false).Files.Delete(uploadedFile.Data.Id, provider: LLmProviders.Anthropic);
+        Console.WriteLine($"{(deleteResult.Data?.Deleted ?? false ? $"File deleted - {deleteResult.Data.Id}" : "File not deleted")}");
+        return deleteResult is not null;
+    }
+    
+    [TornadoTest]
+    public static async Task<bool> DeleteFileGroq()
+    {
+        HttpCallResult<TornadoFile> uploadedFile = await Program.Connect().Files.Upload("Static/Files/batch_sample.jsonl", provider: LLmProviders.Groq);
+        HttpCallResult<DeletedTornadoFile> deleteResult = await Program.Connect().Files.Delete(uploadedFile.Data.Id, provider: LLmProviders.Groq);
         Console.WriteLine($"{(deleteResult.Data?.Deleted ?? false ? $"File deleted - {deleteResult.Data.Id}" : "File not deleted")}");
         return deleteResult is not null;
     }

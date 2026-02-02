@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using Newtonsoft.Json;
 
 namespace LlmTornado.Audio;
@@ -46,9 +46,48 @@ public class SpeechVoice
     public static SpeechVoice Shimmer => new SpeechVoice("shimmer");
 
     /// <summary>
-    ///     Requests a voice named Shimmer
+    ///     Requests a voice named Ash
     /// </summary>
     public static SpeechVoice Ash => new SpeechVoice("ash");
+
+    // Groq Canopy Labs Orpheus voices
+    
+    /// <summary>
+    ///     Requests the Autumn voice from Orpheus (Groq).
+    /// </summary>
+    public static SpeechVoice AutumnOrpheus => new SpeechVoice("autumn");
+    
+    /// <summary>
+    ///     Requests the Diana voice from Orpheus (Groq).
+    /// </summary>
+    public static SpeechVoice DianaOrpheus => new SpeechVoice("diana");
+    
+    /// <summary>
+    ///     Requests the Hannah voice from Orpheus (Groq).
+    /// </summary>
+    public static SpeechVoice HannahOrpheus => new SpeechVoice("hannah");
+    
+    /// <summary>
+    ///     Requests the Austin voice from Orpheus (Groq).
+    /// </summary>
+    public static SpeechVoice AustinOrpheus => new SpeechVoice("austin");
+    
+    /// <summary>
+    ///     Requests the Daniel voice from Orpheus (Groq).
+    /// </summary>
+    public static SpeechVoice DanielOrpheus => new SpeechVoice("daniel");
+    
+    /// <summary>
+    ///     Requests the Troy voice from Orpheus (Groq).
+    /// </summary>
+    public static SpeechVoice TroyOrpheus => new SpeechVoice("troy");
+    
+    /// <summary>
+    ///     Creates a custom voice with the specified name.
+    /// </summary>
+    /// <param name="voiceName">The name of the voice.</param>
+    /// <returns>A SpeechVoice instance with the specified name.</returns>
+    public static SpeechVoice Custom(string voiceName) => new SpeechVoice(voiceName);
 
     /// <summary>
     ///     Gets the string value for this size to pass to the API

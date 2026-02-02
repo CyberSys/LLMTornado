@@ -1,4 +1,6 @@
-﻿namespace LlmTornado.Audio;
+using LlmTornado.Audio.Models;
+
+namespace LlmTornado.Audio;
 
 /// <summary>
 ///     Creates translation request object for translate audios to english language.
@@ -6,14 +8,21 @@
 public class TranslationRequest
 {
     /// <summary>
-    ///     The audio file to transcribe, in one of these formats: mp3, mp4, mpeg, mpga, m4a, wav, or webm
+    ///     The audio file to translate, in one of these formats: mp3, mp4, mpeg, mpga, m4a, wav, or webm.
+    ///     Either File or Url must be provided.
     /// </summary>
     public AudioFile File { get; set; }
+    
+    /// <summary>
+    ///     The audio URL to translate (supports Base64 data URLs). Either File or Url must be provided.
+    ///     Supported by Groq.
+    /// </summary>
+    public string? Url { get; set; }
 
     /// <summary>
-    ///     ID of the model to use. Only whisper-1 is currently available.
+    ///     ID of the model to use.
     /// </summary>
-    public string Model { get; set; } = LlmTornado.Models.Model.Whisper_1;
+    public AudioModel Model { get; set; } = AudioModel.OpenAi.Whisper.V2;
 
     /// <summary>
     ///     An optional text to guide the model's style or continue a previous audio segment. The Prompt should match the audio

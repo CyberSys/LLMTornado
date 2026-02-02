@@ -473,4 +473,106 @@ public class AudioDemo : DemoBase
         Console.WriteLine($"Converted stereo WAV to mono: {wavData.Length} bytes -> {monoData.Length} bytes");
         return monoData;
     }
+    
+    /// <summary>
+    /// Transcribes audio using Groq with timestamp granularities for word-level timestamps.
+    /// </summary>
+    [TornadoTest]
+    public static async Task TranscribeGroqWithTimestamps()
+    {
+        byte[] audioData = await File.ReadAllBytesAsync("Static/Audio/sample.wav");
+
+        TranscriptionResult? transcription = await Program.Connect().Audio.CreateTranscription(new TranscriptionRequest
+        {
+            File = new AudioFile(audioData, AudioFileTypes.Wav),
+            Model = AudioModel.Groq.OpenAi.WhisperV3,
+            ResponseFormat = AudioTranscriptionResponseFormats.VerboseJson,
+            TimestampGranularities = [TimestampGranularities.Word, TimestampGranularities.Segment]
+        });
+
+        if (transcription is not null)
+        {
+            Console.WriteLine("Transcript");
+            Console.WriteLine("--------------------------");
+            Console.WriteLine(transcription.Text);
+            Console.WriteLine();
+            
+            if (transcription.Words?.Count > 0)
+            {
+                Console.WriteLine("Words");
+                Console.WriteLine("--------------------------");
+                foreach (var word in transcription.Words)
+                {
+                    Console.WriteLine($"[{word.Start:F2} - {word.End:F2}] {word.Word}");
+                }
+            }
+        }
+    }
+    
+    /// <summary>
+    /// Translates audio to English using Groq.
+    /// </summary>
+    [TornadoTest]
+    public static async Task TranslateGroq()
+    {
+        byte[] audioData = await File.ReadAllBytesAsync("Static/Audio/sample.wav");
+
+        TranscriptionResult? translation = await Program.Connect().Audio.CreateTranslation(new TranslationRequest
+        {
+            File = new AudioFile(audioData, AudioFileTypes.Wav),
+            Model = AudioModel.Groq.OpenAi.WhisperV3
+        });
+
+        if (translation is not null)
+        {
+            Console.WriteLine(translation.Text);
+        }
+    }
+    
+    /// <summary>
+    /// Generates speech using Groq's Canopy Labs Orpheus TTS model.
+    /// </summary>
+    [TornadoTest]
+    public static async Task SpeechGroq()
+    {
+        SpeechTtsResult? result = await Program.Connect().Audio.CreateSpeech(new SpeechRequest
+        {
+            Input = "Hello! I am speaking through Groq's Orpheus text-to-speech model. The speed of this inference is incredible!",
+            Model = AudioModel.Groq.CanopyLabs.OrpheusV1English,
+            Voice = SpeechVoice.AutumnOrpheus,
+            ResponseFormat = SpeechResponseFormat.Wav,
+            Speed = 1.0f,
+            SampleRate = 24000
+        });
+
+        if (result is not null)
+        {
+            await using FileStream fs = new FileStream("groq_speech_output.wav", FileMode.Create);
+            await result.AudioStream.CopyToAsync(fs);
+            Console.WriteLine("Speech saved to groq_speech_output.wav");
+        }
+    }
+    
+    /// <summary>
+    /// Generates speech using OpenAI's TTS model.
+    /// </summary>
+    [TornadoTest]
+    public static async Task SpeechOpenAi()
+    {
+        SpeechTtsResult? result = await Program.Connect().Audio.CreateSpeech(new SpeechRequest
+        {
+            Input = "Hello! I am speaking through OpenAI's text-to-speech model. This is a demonstration of the audio synthesis capabilities.",
+            Model = AudioModel.OpenAi.Tts.Tts1,
+            Voice = SpeechVoice.Alloy,
+            ResponseFormat = SpeechResponseFormat.Mp3,
+            Speed = 1.0f
+        });
+
+        if (result is not null)
+        {
+            await using FileStream fs = new FileStream("openai_speech_output.mp3", FileMode.Create);
+            await result.AudioStream.CopyToAsync(fs);
+            Console.WriteLine("Speech saved to openai_speech_output.mp3");
+        }
+    }
 }

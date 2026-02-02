@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -59,7 +59,7 @@ public class FilesEndpoint : EndpointBase
 		
 		return resolvedProvider.Provider switch
 		{
-			LLmProviders.OpenAi => new TornadoPagingList<TornadoFile>
+			LLmProviders.OpenAi or LLmProviders.Groq => new TornadoPagingList<TornadoFile>
 			{
 				Items = (await HttpGet<TornadoFiles>(resolvedProvider, Endpoint, queryParams: query?.ToQueryParams(resolvedProvider), ct: token).ConfigureAwait(false)).Data?.Data ?? []
 			},
@@ -301,6 +301,7 @@ public class FilesEndpoint : EndpointBase
 			case LLmProviders.Custom:
 			case LLmProviders.OpenAi:
 			case LLmProviders.Mistral:
+			case LLmProviders.Groq:
 			{
 				HttpCallResult<TornadoFile> file = await HttpPost<TornadoFile>(resolvedProvider, CapabilityEndpoints.Files, url, content.Body).ConfigureAwait(false);
 

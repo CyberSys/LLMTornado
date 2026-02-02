@@ -47,6 +47,7 @@ public class AudioEndpoint : EndpointBase
         return PostAudio($"/translations", new TranscriptionRequest
             {
                 File = request.File,
+                Url = request.Url,
                 Model = request.Model,
                 Prompt = request.Prompt,
                 // ResponseFormat = request.ResponseFormat,
@@ -81,7 +82,9 @@ public class AudioEndpoint : EndpointBase
             serializedRequest.Content.Add(new StringContent("True"), "stream");
         }
         
-        if (request.TimestampGranularities?.Count > 0 && AudioModelOpenAi.VerboseJsonCompatibleModels.Contains(request.Model) && request.ResponseFormat is AudioTranscriptionResponseFormats.VerboseJson)
+        // Timestamp granularities: supported by OpenAI Whisper models and Groq models with verbose_json format
+        bool supportsTimestampGranularities = AudioModelOpenAi.VerboseJsonCompatibleModels.Contains(request.Model) || request.Model?.Provider == LLmProviders.Groq;
+        if (request.TimestampGranularities?.Count > 0 && supportsTimestampGranularities && request.ResponseFormat is AudioTranscriptionResponseFormats.VerboseJson)
         {
             foreach (TimestampGranularities granularity in request.TimestampGranularities)
             {
@@ -132,7 +135,7 @@ public class AudioEndpoint : EndpointBase
             }
         }
         
-        if (request.File.Data is not null)
+        if (request.File?.Data is not null)
         {
             serializedRequest.Ms = new MemoryStream(request.File.Data);
             serializedRequest.Sc = new StreamContent(serializedRequest.Ms);
@@ -142,13 +145,19 @@ public class AudioEndpoint : EndpointBase
         
             serializedRequest.Content.Add(serializedRequest.Sc, "file", "test.wav");
         }
-        else if (request.File.File is not null)
+        else if (request.File?.File is not null)
         {
             serializedRequest.Sc = new StreamContent(request.File.File);
             serializedRequest.Sc.Headers.ContentLength = request.File.File.Length;
             serializedRequest.Sc.Headers.ContentType = new MediaTypeHeaderValue(request.File.GetContentType);
         
             serializedRequest.Content.Add(serializedRequest.Sc, "file", "test.wav");
+        }
+        
+        // URL parameter for audio URL (Groq supports this as alternative to file)
+        if (!request.Url.IsNullOrWhiteSpace())
+        {
+            serializedRequest.Content.Add(new StringContent(request.Url), "url");
         }
         
         serializedRequest.Content.Add(new StringContent(request.Model.GetApiName), "model");
