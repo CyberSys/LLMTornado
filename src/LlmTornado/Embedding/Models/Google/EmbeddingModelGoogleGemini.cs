@@ -24,11 +24,13 @@ public class EmbeddingModelGoogleGemini : IVendorModelClassProvider
     /// <summary>
     /// The Text Embedding model is optimized for creating embeddings with 768 dimensions for text of up to 2,048 tokens. Text Embedding offers elastic embedding sizes under 768. You can use elastic embeddings to generate smaller output dimensions and potentially save computing and storage costs with minor performance loss.
     /// </summary>
+    [Obsolete("Shut down January 14, 2026. Use ModelGeminiEmbedding001 instead.")]
     public static readonly EmbeddingModel ModelEmbedding4 = new EmbeddingModel("text-embedding-004", LLmProviders.Google, 2_048, 768);
 
     /// <summary>
     /// <inheritdoc cref="ModelEmbedding4"/>
     /// </summary>
+    [Obsolete("Shut down January 14, 2026. Use GeminiEmbedding001 instead.")]
     public readonly EmbeddingModel Embedding4 = ModelEmbedding4;
     
     /// <summary>

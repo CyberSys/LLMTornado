@@ -86,11 +86,13 @@ public class ChatModelGoogleGeminiPreview : IVendorModelClassProvider
     /// <summary>
     /// Gemini 2.5 Flash Image Preview is our latest, fastest, and most efficient natively multimodal model that lets you generate and edit images conversationally.
     /// </summary>
+    [Obsolete("Shut down January 15, 2026. Use Gemini3ProImagePreview instead.")]
     public static readonly ChatModel ModelGemini25FlashImagePreview = new ChatModel("gemini-2.5-flash-image-preview", LLmProviders.Google, 32_768);
     
     /// <summary>
     /// <inheritdoc cref="ModelGemini25FlashImagePreview"/>
     /// </summary>
+    [Obsolete("Shut down January 15, 2026. Use Gemini3ProImagePreview instead.")]
     public readonly ChatModel Gemini25FlashImagePreview = ModelGemini25FlashImagePreview;
     
     /// <summary>

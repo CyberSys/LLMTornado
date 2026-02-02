@@ -27,7 +27,22 @@ public class ChatModelGoogleGemini : IVendorModelClassProvider
     public readonly ChatModel Gemini25Pro = ModelGemini25Pro;
     
     /// <summary>
-    /// gemini-2.5-flash-preview-09-2025
+    /// Alias pointing to gemini-3-pro-preview. Gemini 3 Pro is the first model in the new series, best for complex tasks that require broad world knowledge and advanced reasoning across modalities.
+    /// </summary>
+    public static readonly ChatModel ModelGeminiProLatest = new ChatModel("gemini-pro-latest", LLmProviders.Google, 1_000_000) 
+    {
+        ReasoningTokensMin = 128,
+        ReasoningTokensMax = 32_768,
+        ReasoningTokensSpecialValues = [ -1 ]
+    };
+    
+    /// <summary>
+    /// <inheritdoc cref="ModelGeminiProLatest"/>
+    /// </summary>
+    public readonly ChatModel GeminiProLatest = ModelGeminiProLatest;
+    
+    /// <summary>
+    /// Alias pointing to gemini-3-flash-preview. Gemini 3 Flash is our latest 3-series model, with Pro-level intelligence at the speed and pricing of Flash.
     /// </summary>
     public static readonly ChatModel ModelGeminiFlashLatest = new ChatModel("gemini-flash-latest", LLmProviders.Google, 1_000_000) 
     {
@@ -224,7 +239,7 @@ public class ChatModelGoogleGemini : IVendorModelClassProvider
         ModelGemini15ProLatest, 
         ModelGemini15Pro, ModelGemini15Pro001, ModelGemini15Pro002, ModelGemini15Flash8B, ModelGemini15Flash8BLatest, ModelGemini2Flash001,
         ModelGemini2FlashLatest, ModelGemini2FlashLite001, ModelGemini2FlashLiteLatest, ModelGemini25Pro, ModelGemini25Flash, 
-        ModelGemini25FlashLite, ModelGeminiFlashLiteLatest, ModelGeminiFlashLatest, ModelGemini25FlashImage
+        ModelGemini25FlashLite, ModelGeminiFlashLiteLatest, ModelGeminiFlashLatest, ModelGeminiProLatest, ModelGemini25FlashImage
     ]);
 
     /// <summary>
