@@ -16,6 +16,7 @@ using LlmTornado.Chat.Vendors.Mistral;
 using LlmTornado.Chat.Vendors.Perplexity;
 using LlmTornado.Chat.Vendors.XAi;
 using LlmTornado.Chat.Vendors.Zai;
+using LlmTornado.Chat.Vendors.MoonshotAi;
 using LlmTornado.Code.Models;
 using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Linq;
@@ -669,30 +670,9 @@ public class ChatRequest : IModelRequest, ISerializableRequest, IHeaderProvider
 		{
 			LLmProviders.MoonshotAi, (x, y, z, a) =>
 			{
-				// temperature parameter in the Kimi API is [0, 1]
-				if (x.Temperature is not null)
-				{
-					if (x.Temperature < 0)
-					{
-						x.Temperature = 0;
-					}
-
-					if (x.Temperature > 1)
-					{
-						x.Temperature = 1;
-					}
-				}
-
-				// Kimi API does not support the tool_choice=required parameter
-				if (x.ToolChoice == OutboundToolChoice.Required)
-				{
-					x.ToolChoice = OutboundToolChoice.Auto;
-				}
-		
-				// todo: decide how to map prefill https://platform.moonshot.ai/docs/api/partial
-				// todo: decide about web search https://platform.moonshot.ai/docs/guide/use-web-search#about-model-size-selection
-				
-				return PreparePayload(x, x, y, z, GetSerializer(EndpointBase.NullSettings, a));
+				VendorMoonshotAiChatRequest request = new VendorMoonshotAiChatRequest(x, y);
+				JsonSerializerSettings serializer = GetSerializer(EndpointBase.NullSettings, a);
+				return PreparePayload(request.Serialize(serializer), x, y, z, serializer);
 			}
 		},
 		{

@@ -2,6 +2,7 @@ using LlmTornado.Code;
 using LlmTornado.Images;
 using LlmTornado.Images.Models;
 using LlmTornado.Images.Vendors.Google;
+using LlmTornado.Images.Vendors.XAi;
 using LlmTornado.Models;
 using PuppeteerSharp;
 using System.Diagnostics;
@@ -125,6 +126,80 @@ public class ImagesDemo : DemoBase
         });
 
         await DisplayImage(generatedImg);
+    }
+    
+    [TornadoTest]
+    [Flaky("expensive")]
+    public static async Task GenerateGrokImagine()
+    {
+        ImageGenerationResult? generatedImg = await Program.Connect().ImageGenerations.CreateImage(new ImageGenerationRequest
+        {
+            Prompt = "a majestic lion in the savanna at sunset",
+            ResponseFormat = TornadoImageResponseFormats.Url,
+            Model = ImageModel.XAi.Grok.Imagine,
+            NumOfImages = 1,
+            VendorExtensions = new ImageGenerationRequestVendorExtensions(new ImageGenerationRequestXAiExtensions
+            {
+                AspectRatio = ImageAspectRatio.Landscape16x9,
+                Resolution = ImageResolution.Resolution1k
+            })
+        });
+
+        await DisplayImage(generatedImg);
+    }
+    
+    [TornadoTest]
+    [Flaky("expensive")]
+    public static async Task GenerateGrokImaginePortrait()
+    {
+        ImageGenerationResult? generatedImg = await Program.Connect().ImageGenerations.CreateImage(new ImageGenerationRequest
+        {
+            Prompt = "a beautiful waterfall in a tropical forest",
+            ResponseFormat = TornadoImageResponseFormats.Base64,
+            Model = ImageModel.XAi.Grok.Imagine,
+            VendorExtensions = new ImageGenerationRequestVendorExtensions(new ImageGenerationRequestXAiExtensions
+            {
+                AspectRatio = ImageAspectRatio.Portrait9x16
+            })
+        });
+
+        await DisplayImage(generatedImg);
+    }
+    
+    [TornadoTest]
+    [Flaky("expensive")]
+    public static async Task EditGrokImagine()
+    {
+        // First generate an image
+        ImageGenerationResult? generatedImg = await Program.Connect().ImageGenerations.CreateImage(new ImageGenerationRequest
+        {
+            Prompt = "a cat sitting in a tree",
+            ResponseFormat = TornadoImageResponseFormats.Base64,
+            Model = ImageModel.XAi.Grok.Imagine
+        });
+        
+        await DisplayImage(generatedImg);
+        
+        if (generatedImg?.Data?[0].Base64 is null)
+        {
+            Console.WriteLine("No base64 image to edit.");
+            return;
+        }
+
+        // Now edit the generated image
+        ImageGenerationResult? edited = await Program.Connect().ImageEdit.EditImage(new ImageEditRequest
+        {
+            Prompt = "Swap the cat in the picture with a dog",
+            Model = ImageModel.XAi.Grok.Imagine,
+            Image = new TornadoInputFile(generatedImg.Data[0].Base64, "image/jpeg"),
+            ResponseFormat = TornadoImageResponseFormats.Url,
+            VendorExtensions = new ImageEditRequestVendorExtensions(new ImageEditRequestXAiExtensions
+            {
+                Resolution = ImageResolution.Resolution1k
+            })
+        });
+        
+        await DisplayImage(edited);
     }
     
     [TornadoTest]

@@ -1,7 +1,8 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Threading;
 using LlmTornado.Audio.Models;
+using LlmTornado.Audio.Vendors.Zai;
 using LlmTornado.Chat;
 using LlmTornado.Chat.Models;
 using LlmTornado.Chat.Vendors.Anthropic;
@@ -109,13 +110,21 @@ public class TranscriptionRequest
     [JsonIgnore]
     public CancellationToken CancellationToken { get; set; } = CancellationToken.None;
     
+    /// <summary>
+    /// Z.AI-specific extensions for transcription requests.
+    /// Includes hotwords for domain-specific vocabulary, request/user IDs, and base64 file alternative.
+    /// </summary>
+    [JsonIgnore]
+    public TranscriptionRequestZaiExtensions? ZaiExtensions { get; set; }
+    
     [JsonIgnore]
     internal string? UrlOverride { get; set; }
     
     private static readonly Dictionary<LLmProviders, Func<TranscriptionRequest, IEndpointProvider, string>> SerializeMap = new Dictionary<LLmProviders, Func<TranscriptionRequest, IEndpointProvider, string>>
     {
         { LLmProviders.OpenAi, (x, y) => JsonConvert.SerializeObject(x, EndpointBase.NullSettings) },
-        { LLmProviders.Groq, (x, y) => JsonConvert.SerializeObject(x, EndpointBase.NullSettings) }
+        { LLmProviders.Groq, (x, y) => JsonConvert.SerializeObject(x, EndpointBase.NullSettings) },
+        { LLmProviders.Zai, (x, y) => JsonConvert.SerializeObject(x, EndpointBase.NullSettings) }
     };
     
     /// <summary>

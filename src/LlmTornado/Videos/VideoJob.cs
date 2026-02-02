@@ -117,12 +117,18 @@ public class VideoJob : ApiResultBase
     public bool Done => Status is VideoJobStatus.Completed or VideoJobStatus.Failed;
     
     /// <summary>
-    /// Direct URI to download the video content. Only populated for providers that return
-    /// a download URL (e.g., Google). For other providers like OpenAI, use the
-    /// <c>DownloadContent</c> method on the endpoint instead.
+    /// Direct URI to download the video content. Populated for providers that return
+    /// a download URL (Google, xAI, Z.AI). For OpenAI, use the <c>DownloadContent</c> method
+    /// on the endpoint instead.
     /// </summary>
     [JsonIgnore]
     public string? VideoUri { get; set; }
+    
+    /// <summary>
+    /// Direct URI to the video cover/thumbnail image. Populated by Z.AI.
+    /// </summary>
+    [JsonIgnore]
+    public string? CoverImageUri { get; set; }
     
     // --- Internal provider-specific fields ---
     

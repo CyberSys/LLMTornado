@@ -1,4 +1,5 @@
 using LlmTornado.Images.Vendors.Google;
+using LlmTornado.Images.Vendors.XAi;
 
 namespace LlmTornado.Images;
 
@@ -11,6 +12,11 @@ public class ImageGenerationRequestVendorExtensions
     ///     Google extensions.
     /// </summary>
     public ImageGenerationRequestGoogleExtensions? Google { get; set; }
+    
+    /// <summary>
+    ///     xAI extensions.
+    /// </summary>
+    public ImageGenerationRequestXAiExtensions? XAi { get; set; }
 
     /// <summary>
     ///     Empty extensions.
@@ -27,5 +33,14 @@ public class ImageGenerationRequestVendorExtensions
     public ImageGenerationRequestVendorExtensions(ImageGenerationRequestGoogleExtensions googleExtensions)
     {
         Google = googleExtensions;
+    }
+    
+    /// <summary>
+    ///     xAI extensions.
+    /// </summary>
+    /// <param name="xAiExtensions"></param>
+    public ImageGenerationRequestVendorExtensions(ImageGenerationRequestXAiExtensions xAiExtensions)
+    {
+        XAi = xAiExtensions;
     }
 }

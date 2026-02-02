@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using LlmTornado.Code;
 using LlmTornado.Code.MimeTypeMap;
+using LlmTornado.Images.Models;
 
 namespace LlmTornado.Images;
 
@@ -34,6 +35,32 @@ public class ImageEditEndpoint : EndpointBase
     /// <param name="request">Request to be sent</param>
     /// <returns>Asynchronously returns the image result. Look in its <see cref="TornadoGeneratedImage.Url" /> </returns>
     public async Task<ImageGenerationResult?> EditImage(ImageEditRequest request)
+    {
+        IEndpointProvider provider = Api.GetProvider(request.Model ?? ImageModel.OpenAi.Dalle.V2);
+        
+        // xAI uses JSON body instead of multipart form
+        if (provider.Provider == LLmProviders.XAi)
+        {
+            return await EditImageJson(request, provider).ConfigureAwait(false);
+        }
+        
+        // OpenAI and other providers use multipart form
+        return await EditImageMultipart(request, provider).ConfigureAwait(false);
+    }
+    
+    /// <summary>
+    ///     Edit an image using JSON body (for xAI and similar providers).
+    /// </summary>
+    private async Task<ImageGenerationResult?> EditImageJson(ImageEditRequest request, IEndpointProvider provider)
+    {
+        TornadoRequestContent requestBody = request.Serialize(provider);
+        return await HttpPost1<ImageGenerationResult>(provider, Endpoint, requestBody.Url, postData: requestBody.Body).ConfigureAwait(false);
+    }
+    
+    /// <summary>
+    ///     Edit an image using multipart form (for OpenAI and similar providers).
+    /// </summary>
+    private async Task<ImageGenerationResult?> EditImageMultipart(ImageEditRequest request, IEndpointProvider provider)
     {
         using MultipartFormDataContent content = new MultipartFormDataContent();
         
@@ -201,7 +228,7 @@ public class ImageEditEndpoint : EndpointBase
             content.Add(new StringContent(request.Stream.Value ? "true" : "false"), "stream");
         }
         
-        ImageGenerationResult? data = await HttpPost1<ImageGenerationResult>(Api.GetProvider(LLmProviders.OpenAi), Endpoint, postData: content).ConfigureAwait(false);
+        ImageGenerationResult? data = await HttpPost1<ImageGenerationResult>(provider, Endpoint, postData: content).ConfigureAwait(false);
         return data;
     }
 }

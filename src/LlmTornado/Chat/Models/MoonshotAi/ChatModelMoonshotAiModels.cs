@@ -61,6 +61,16 @@ public class ChatModelMoonshotAiModels : IVendorModelClassProvider
     public readonly ChatModel KimiK2ThinkingTurbo = ModelKimiK2ThinkingTurbo;
     
     /// <summary>
+    /// kimi-k2.5 - Kimi's most intelligent model with native multimodal support, thinking mode, and 256K context.
+    /// </summary>
+    public static readonly ChatModel ModelKimiK25 = new ChatModel("kimi-k2.5", LLmProviders.MoonshotAi, 262_144);
+    
+    /// <summary>
+    /// <inheritdoc cref="ModelKimiK25"/>
+    /// </summary>
+    public readonly ChatModel KimiK25 = ModelKimiK25;
+    
+    /// <summary>
     /// moonshot-v1-8k
     /// </summary>
     public static readonly ChatModel ModelMoonshotV18k = new ChatModel("moonshot-v1-8k", LLmProviders.MoonshotAi, 8_192);
@@ -191,6 +201,7 @@ public class ChatModelMoonshotAiModels : IVendorModelClassProvider
         ModelKimiK2TurboPreview,
         ModelKimiK2Thinking,
         ModelKimiK2ThinkingTurbo,
+        ModelKimiK25,
         ModelMoonshotV18k,
         ModelMoonshotV132k,
         ModelMoonshotV1128k,

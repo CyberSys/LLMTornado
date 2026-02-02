@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Frozen;
 using System.Collections.Generic;
 using System.Reflection;
@@ -6,6 +6,7 @@ using System.Runtime.Serialization;
 using LlmTornado.Code;
 using LlmTornado.Images.Models;
 using LlmTornado.Images.Vendors.Google;
+using LlmTornado.Images.Vendors.XAi;
 using Newtonsoft.Json;
 
 namespace LlmTornado.Images;
@@ -232,13 +233,7 @@ public class ImageGenerationRequest
 	private static readonly FrozenDictionary<LLmProviders, Func<ImageGenerationRequest, IEndpointProvider, string>> SerializeMap = new Dictionary<LLmProviders, Func<ImageGenerationRequest, IEndpointProvider, string>>
 	{
 		{ LLmProviders.OpenAi, (x, y) => JsonConvert.SerializeObject(x, EndpointBase.NullSettings)},
-		{ LLmProviders.XAi, (x, y) =>
-		{
-			// fields unsupported by xai
-			x.Size = null;
-			
-			return JsonConvert.SerializeObject(x, EndpointBase.NullSettings);
-		}},
+		{ LLmProviders.XAi, (x, y) => JsonConvert.SerializeObject(new VendorXAiImageRequest(x, y), EndpointBase.NullSettings) },
 		{ LLmProviders.Google, (x, y) => JsonConvert.SerializeObject(new VendorGoogleImageRequest(x, y), EndpointBase.NullSettings) }
 	}.ToFrozenDictionary();
 }

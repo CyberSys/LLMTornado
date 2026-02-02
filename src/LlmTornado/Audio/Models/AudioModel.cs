@@ -4,6 +4,7 @@ using System.Linq;
 using LlmTornado.Audio.Models.Groq;
 using LlmTornado.Audio.Models.Mistral;
 using LlmTornado.Audio.Models.OpenAi;
+using LlmTornado.Audio.Models.Zai;
 using LlmTornado.Code;
 using LlmTornado.Code.Models;
 using LlmTornado.Models;
@@ -30,6 +31,11 @@ public class AudioModel : ModelBase
     /// Models provided by Mistral.
     /// </summary>
     public static readonly AudioModelMistral Mistral = new AudioModelMistral();
+    
+    /// <summary>
+    /// Models provided by Z.AI.
+    /// </summary>
+    public static readonly AudioModelZai Zai = new AudioModelZai();
     
     /// <summary>
     /// All known models keyed by name.
@@ -61,7 +67,7 @@ public class AudioModel : ModelBase
     public static List<BaseVendorModelProvider> AllProviders => LazyAllProviders.Value;
 
     private static readonly Lazy<List<BaseVendorModelProvider>> LazyAllProviders = new Lazy<List<BaseVendorModelProvider>>(() => [
-        OpenAi, Groq, Mistral
+        OpenAi, Groq, Mistral, Zai
     ]);
     
     /// <summary>

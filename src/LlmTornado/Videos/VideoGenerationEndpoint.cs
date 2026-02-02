@@ -7,6 +7,8 @@ using LlmTornado.Common;
 using LlmTornado.Videos.Models;
 using LlmTornado.Videos.Vendors.Google;
 using LlmTornado.Videos.Vendors.OpenAi;
+using LlmTornado.Videos.Vendors.XAi;
+using LlmTornado.Videos.Vendors.Zai;
 
 namespace LlmTornado.Videos;
 
@@ -44,6 +46,8 @@ public class VideoGenerationEndpoint : EndpointBase
         {
             LLmProviders.OpenAi or LLmProviders.Custom => await VendorOpenAiVideoHandler.Create(request, resolvedProvider, this, cancellationToken).ConfigureAwait(false),
             LLmProviders.Google => await VendorGoogleVideoHandler.Create(request, resolvedProvider, this, cancellationToken).ConfigureAwait(false),
+            LLmProviders.XAi => await VendorXAiVideoHandler.Create(request, resolvedProvider, this, cancellationToken).ConfigureAwait(false),
+            LLmProviders.Zai => await VendorZaiVideoHandler.Create(request, resolvedProvider, this, cancellationToken).ConfigureAwait(false),
             _ => throw new NotSupportedException($"Video API is not supported for provider {resolvedProvider.Provider}")
         };
     }
@@ -64,6 +68,8 @@ public class VideoGenerationEndpoint : EndpointBase
         {
             LLmProviders.OpenAi or LLmProviders.Custom => await VendorOpenAiVideoHandler.Get(videoId, resolvedProvider, this, cancellationToken).ConfigureAwait(false),
             LLmProviders.Google => await VendorGoogleVideoHandler.Get(videoId, resolvedProvider, this, model?.Name, cancellationToken).ConfigureAwait(false),
+            LLmProviders.XAi => await VendorXAiVideoHandler.Get(videoId, resolvedProvider, this, cancellationToken).ConfigureAwait(false),
+            LLmProviders.Zai => await VendorZaiVideoHandler.Get(videoId, resolvedProvider, this, cancellationToken).ConfigureAwait(false),
             _ => throw new NotSupportedException($"Video API is not supported for provider {resolvedProvider.Provider}")
         };
     }
@@ -117,6 +123,8 @@ public class VideoGenerationEndpoint : EndpointBase
         {
             LLmProviders.OpenAi or LLmProviders.Custom => await DownloadContentOpenAi(job.Id, variant, cancellationToken).ConfigureAwait(false),
             LLmProviders.Google => await DownloadContentGoogle(job, cancellationToken).ConfigureAwait(false),
+            LLmProviders.XAi => await DownloadContentXAi(job, cancellationToken).ConfigureAwait(false),
+            LLmProviders.Zai => await DownloadContentZai(job, cancellationToken).ConfigureAwait(false),
             _ => throw new NotSupportedException($"Video API DownloadContent is not supported for provider {job.SourceProvider}")
         };
     }
@@ -157,6 +165,28 @@ public class VideoGenerationEndpoint : EndpointBase
         return await VendorGoogleVideoHandler.GetContent(job.VideoUri, resolvedProvider, this, cancellationToken).ConfigureAwait(false);
     }
     
+    private async Task<StreamResponse?> DownloadContentXAi(VideoJob job, CancellationToken cancellationToken)
+    {
+        if (string.IsNullOrEmpty(job.VideoUri))
+        {
+            return null;
+        }
+        
+        IEndpointProvider resolvedProvider = Api.ResolveProvider(LLmProviders.XAi);
+        return await VendorXAiVideoHandler.GetContent(job.VideoUri, resolvedProvider, this, cancellationToken).ConfigureAwait(false);
+    }
+    
+    private async Task<StreamResponse?> DownloadContentZai(VideoJob job, CancellationToken cancellationToken)
+    {
+        if (string.IsNullOrEmpty(job.VideoUri))
+        {
+            return null;
+        }
+        
+        IEndpointProvider resolvedProvider = Api.ResolveProvider(LLmProviders.Zai);
+        return await VendorZaiVideoHandler.GetContent(job.VideoUri, resolvedProvider, this, cancellationToken).ConfigureAwait(false);
+    }
+    
     /// <summary>
     ///     Creates a remix of a completed video. Works with OpenAI only.
     /// </summary>
@@ -174,6 +204,57 @@ public class VideoGenerationEndpoint : EndpointBase
             LLmProviders.OpenAi or LLmProviders.Custom => await VendorOpenAiVideoHandler.Remix(videoId, prompt, resolvedProvider, this, cancellationToken).ConfigureAwait(false),
             _ => throw new NotSupportedException($"Video API Remix is not supported for provider {resolvedProvider.Provider}")
         };
+    }
+    
+    /// <summary>
+    ///     Edits an existing video based on a prompt. Works with xAI only.
+    ///     Note: The input video URL must be a direct, publicly accessible link. Maximum supported video length is 8.7 seconds.
+    /// </summary>
+    /// <param name="prompt">Prompt describing the desired changes</param>
+    /// <param name="videoUrl">URL of the video to edit (public URL or base64-encoded data URL)</param>
+    /// <param name="request">Optional request with model and extension settings</param>
+    /// <param name="cancellationToken">Cancellation token</param>
+    /// <returns>The video edit job</returns>
+    public async Task<HttpCallResult<VideoJob>> Edit(string prompt, string videoUrl, VideoGenerationRequest? request = null, CancellationToken cancellationToken = default)
+    {
+        request ??= new VideoGenerationRequest();
+        request.Model ??= VideoModel.XAi.Grok.ImagineVideo;
+        
+        IEndpointProvider resolvedProvider = Api.ResolveProvider(request.Model.Provider);
+        
+        return resolvedProvider.Provider switch
+        {
+            LLmProviders.XAi => await VendorXAiVideoHandler.Edit(prompt, videoUrl, request, resolvedProvider, this, cancellationToken).ConfigureAwait(false),
+            _ => throw new NotSupportedException($"Video API Edit is not supported for provider {resolvedProvider.Provider}")
+        };
+    }
+    
+    /// <summary>
+    ///     Edits an existing video and waits for completion. Works with xAI only.
+    /// </summary>
+    /// <param name="prompt">Prompt describing the desired changes</param>
+    /// <param name="videoUrl">URL of the video to edit</param>
+    /// <param name="request">Optional request with model and extension settings</param>
+    /// <param name="pollingIntervalMs">Interval between polls in milliseconds</param>
+    /// <param name="maxWaitMs">Maximum wait time in milliseconds</param>
+    /// <param name="cancellationToken">Cancellation token</param>
+    /// <returns>The completed video edit job</returns>
+    public async Task<HttpCallResult<VideoJob>> EditAndWait(
+        string prompt,
+        string videoUrl,
+        VideoGenerationRequest? request = null,
+        int pollingIntervalMs = 10000,
+        int maxWaitMs = 86400000,
+        CancellationToken cancellationToken = default)
+    {
+        HttpCallResult<VideoJob> editResult = await Edit(prompt, videoUrl, request, cancellationToken).ConfigureAwait(false);
+        
+        if (!editResult.Ok || editResult.Data is null)
+        {
+            return editResult;
+        }
+        
+        return await WaitForCompletion(editResult.Data.Id, pollingIntervalMs, maxWaitMs, LLmProviders.XAi, request?.Model, cancellationToken).ConfigureAwait(false);
     }
     
     /// <summary>

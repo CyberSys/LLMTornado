@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Net.Http;
@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using LlmTornado.Code;
 using LlmTornado.Audio.Models;
 using LlmTornado.Audio.Models.OpenAi;
+using LlmTornado.Audio.Vendors.Zai;
 using Newtonsoft.Json;
 
 namespace LlmTornado.Audio;
@@ -216,9 +217,12 @@ public class AudioEndpoint : EndpointBase
         IEndpointProvider provider = Api.GetProvider(request.Model);
         url = provider.ApiUrl(CapabilityEndpoints.Audio, url);
 
-        TranscriptionSerializedRequest serialized = SerializeRequest(request); 
+        // Use Zai-specific serialization for Z.AI provider
+        MultipartFormDataContent content = provider.Provider == LLmProviders.Zai 
+            ? VendorZaiAudioHandler.CreateStreamingRequest(request) 
+            : SerializeRequest(request).Content;
 
-        TornadoRequestContent requestBody = new TornadoRequestContent(serialized.Content, request.Model, url, provider, CapabilityEndpoints.Audio);
+        TornadoRequestContent requestBody = new TornadoRequestContent(content, request.Model, url, provider, CapabilityEndpoints.Audio);
         await using TornadoStreamRequest tornadoStreamRequest = await HttpStreamingRequestData(provider, Endpoint, requestBody.Url, queryParams: null, HttpVerbs.Post, requestBody.Body, request.Model, request, request.CancellationToken);
 
         if (tornadoStreamRequest.Exception is not null)
@@ -288,6 +292,13 @@ public class AudioEndpoint : EndpointBase
         request.Stream = null;
         
         IEndpointProvider provider = Api.GetProvider(request.Model);
+        
+        // Route to Zai handler for Z.AI provider
+        if (provider.Provider == LLmProviders.Zai)
+        {
+            return await VendorZaiAudioHandler.CreateTranscription(request, provider, this, request.CancellationToken);
+        }
+        
         url = provider.ApiUrl(CapabilityEndpoints.Audio, url);
 
         TranscriptionSerializedRequest serialized = SerializeRequest(request); 

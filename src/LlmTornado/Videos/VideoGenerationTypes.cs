@@ -124,16 +124,46 @@ public class VideoInput
 public enum VideoAspectRatio
 {
     /// <summary>
-    /// 16:9 aspect ratio (widescreen)
+    /// 1:1 aspect ratio (square). Supported by xAI.
+    /// </summary>
+    [EnumMember(Value = "1:1")]
+    Square,
+    
+    /// <summary>
+    /// 16:9 aspect ratio (widescreen). Supported by Google Veo, xAI.
     /// </summary>
     [EnumMember(Value = "16:9")]
     Widescreen,
 
     /// <summary>
-    /// 9:16 aspect ratio (portrait)
+    /// 9:16 aspect ratio (portrait). Supported by Google Veo, xAI.
     /// </summary>
     [EnumMember(Value = "9:16")]
-    Portrait
+    Portrait,
+    
+    /// <summary>
+    /// 4:3 aspect ratio (standard). Supported by xAI.
+    /// </summary>
+    [EnumMember(Value = "4:3")]
+    Standard,
+    
+    /// <summary>
+    /// 3:4 aspect ratio (standard portrait). Supported by xAI.
+    /// </summary>
+    [EnumMember(Value = "3:4")]
+    StandardPortrait,
+    
+    /// <summary>
+    /// 3:2 aspect ratio (classic). Supported by xAI.
+    /// </summary>
+    [EnumMember(Value = "3:2")]
+    Classic,
+    
+    /// <summary>
+    /// 2:3 aspect ratio (classic portrait). Supported by xAI.
+    /// </summary>
+    [EnumMember(Value = "2:3")]
+    ClassicPortrait
 }
 
 /// <summary>
@@ -142,13 +172,19 @@ public enum VideoAspectRatio
 public enum VideoResolution
 {
     /// <summary>
-    /// 720p resolution (1280x720)
+    /// 480p resolution (854x480). Supported by xAI.
+    /// </summary>
+    [EnumMember(Value = "480p")]
+    SD,
+    
+    /// <summary>
+    /// 720p resolution (1280x720). Supported by Google Veo, xAI.
     /// </summary>
     [EnumMember(Value = "720p")]
     HD,
 
     /// <summary>
-    /// 1080p resolution (1920x1080) - Only supports 8s duration for Veo 3.1
+    /// 1080p resolution (1920x1080). Supported by Google Veo (only 8s duration for Veo 3.1).
     /// </summary>
     [EnumMember(Value = "1080p")]
     FullHD
@@ -221,6 +257,11 @@ public enum VideoDuration
     /// Required when using extension, interpolation, or referenceImages
     /// </summary>
     Seconds8 = 8,
+    
+    /// <summary>
+    /// 10 seconds - Supported by Z.AI CogVideoX
+    /// </summary>
+    Seconds10 = 10,
     
     /// <summary>
     /// 12 seconds - Supported by sora-2 and sora-2-pro

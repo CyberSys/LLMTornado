@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Runtime.Serialization;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
@@ -154,6 +154,116 @@ public enum ImageBackgroundTypes
     /// </summary>
     [EnumMember(Value = "opaque")]
     Opaque
+}
+
+/// <summary>
+/// Aspect ratio options for image generation. Use this when a provider supports aspect ratio instead of fixed sizes.
+/// </summary>
+[JsonConverter(typeof(StringEnumConverter))]
+public enum ImageAspectRatio
+{
+    /// <summary>
+    /// 1:1 square aspect ratio. Supported by: xAI, Google Imagen.
+    /// </summary>
+    [EnumMember(Value = "1:1")]
+    Square,
+    
+    /// <summary>
+    /// 2:3 portrait aspect ratio. Supported by: xAI.
+    /// </summary>
+    [EnumMember(Value = "2:3")]
+    Portrait2x3,
+    
+    /// <summary>
+    /// 3:2 landscape aspect ratio. Supported by: xAI.
+    /// </summary>
+    [EnumMember(Value = "3:2")]
+    Landscape3x2,
+    
+    /// <summary>
+    /// 3:4 portrait aspect ratio. Supported by: xAI, Google Imagen.
+    /// </summary>
+    [EnumMember(Value = "3:4")]
+    Portrait3x4,
+    
+    /// <summary>
+    /// 4:3 landscape aspect ratio. Supported by: xAI, Google Imagen.
+    /// </summary>
+    [EnumMember(Value = "4:3")]
+    Landscape4x3,
+    
+    /// <summary>
+    /// 9:16 portrait aspect ratio (mobile portrait). Supported by: xAI, Google Imagen.
+    /// </summary>
+    [EnumMember(Value = "9:16")]
+    Portrait9x16,
+    
+    /// <summary>
+    /// 16:9 landscape aspect ratio (widescreen). Supported by: xAI, Google Imagen.
+    /// </summary>
+    [EnumMember(Value = "16:9")]
+    Landscape16x9,
+    
+    /// <summary>
+    /// 9:19.5 portrait aspect ratio (iPhone notch display). Supported by: xAI.
+    /// </summary>
+    [EnumMember(Value = "9:19.5")]
+    Portrait9x19_5,
+    
+    /// <summary>
+    /// 19.5:9 landscape aspect ratio. Supported by: xAI.
+    /// </summary>
+    [EnumMember(Value = "19.5:9")]
+    Landscape19_5x9,
+    
+    /// <summary>
+    /// 9:20 portrait aspect ratio. Supported by: xAI.
+    /// </summary>
+    [EnumMember(Value = "9:20")]
+    Portrait9x20,
+    
+    /// <summary>
+    /// 20:9 ultrawide landscape aspect ratio. Supported by: xAI.
+    /// </summary>
+    [EnumMember(Value = "20:9")]
+    Landscape20x9,
+    
+    /// <summary>
+    /// 1:2 portrait aspect ratio. Supported by: xAI.
+    /// </summary>
+    [EnumMember(Value = "1:2")]
+    Portrait1x2,
+    
+    /// <summary>
+    /// 2:1 landscape aspect ratio. Supported by: xAI.
+    /// </summary>
+    [EnumMember(Value = "2:1")]
+    Landscape2x1,
+    
+    /// <summary>
+    /// Automatic aspect ratio selection. Supported by: xAI.
+    /// </summary>
+    [EnumMember(Value = "auto")]
+    Auto
+}
+
+/// <summary>
+/// Resolution options for image generation.
+/// </summary>
+[JsonConverter(typeof(StringEnumConverter))]
+public enum ImageResolution
+{
+    /// <summary>
+    /// 1K resolution (default). Supported by: xAI.
+    /// </summary>
+    [EnumMember(Value = "1k")]
+    Resolution1k,
+    
+    /// <summary>
+    /// 2K resolution. Supported by: xAI (coming soon).
+    /// </summary>
+    [EnumMember(Value = "2k")]
+    Resolution2k
 }
 
 /// <summary>

@@ -16,7 +16,7 @@ _Empty field means the feature is unsupported by the provider._
 | **DeepSeek** | ✅ | ✅ | | | | | | | | | | ❌ | | |
 | **Groq** | ✅ | ✅ | | ❌ | | | | | | | | | | ❌ |
 | **Mistral** | ✅ | ✅ | ✅ | ✅ | | ✅ | | | | | | ❌ | ❌ | ❌ |
-| **xAI** | ✅ | ✅ | | | ✅ | | | | ❌ | | | | | |
+| **xAI** | ✅ | ✅ | | | ✅ | | | | ❌ | ✅ | | | | |
 | **MoonshotAI**| ✅ | ✅ | | ✅ | | | | | | | ✅ | | | |
 | **Perplexity**| ✅ | | | | | | | | | | | | | |
 | **Voyage** | | | ✅ | | | | | | | | | | | |
@@ -24,7 +24,7 @@ _Empty field means the feature is unsupported by the provider._
 | **OpenRouter**| ✅ | ✅ | ✅ | | | | | | | | | | | |
 | **Requesty**| ✅ | ✅ | ✅ | | | | | | | | | | | |
 | **Upstage** | ✅ | | ✅ | | | | | | | | | | | |
-| **Z.ai** | ✅ | | | ✅ | | | | | | ❌ | | | | |
+| **Z.ai** | ✅ | | | ✅ | | ✅ | | | | ✅ | | | | |
 | **Alibaba** | ✅ | ✅ | ✅ | | | | | | | | | | | ❌ |
 | **Blablador** | ✅ | ✅ | ✅ | | | | | | | | | | | |
 | **Custom*** | ✅ | ✅ | | | | | | | | | | | | |

@@ -5,7 +5,7 @@ using Newtonsoft.Json.Converters;
 namespace LlmTornado.Videos;
 
 /// <summary>
-/// Status of a video generation job.
+/// Status of a video generation job. Harmonized across providers.
 /// </summary>
 [JsonConverter(typeof(StringEnumConverter))]
 public enum VideoJobStatus

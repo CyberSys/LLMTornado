@@ -1,6 +1,9 @@
+using System;
+using System.Collections.Frozen;
 using System.Collections.Generic;
 using LlmTornado.Code;
 using LlmTornado.Images.Models;
+using LlmTornado.Images.Vendors.XAi;
 using Newtonsoft.Json;
 
 namespace LlmTornado.Images;
@@ -154,4 +157,27 @@ public class ImageEditRequest
 	/// </summary>
 	[JsonProperty("stream")]
 	public bool? Stream { get; set; }
+	
+	/// <summary>
+	///		Features supported only by a single/few providers with no shared equivalent.
+	/// </summary>
+	[JsonIgnore]
+	public ImageEditRequestVendorExtensions? VendorExtensions { get; set; }
+	
+	/// <summary>
+	///		Serializes the image edit request into the request body, based on the conventions used by the LLM provider.
+	/// </summary>
+	/// <param name="provider"></param>
+	/// <returns></returns>
+	public TornadoRequestContent Serialize(IEndpointProvider provider)
+	{
+		return SerializeMap.TryGetValue(provider.Provider, out Func<ImageEditRequest, IEndpointProvider, string>? serializerFn) 
+			? new TornadoRequestContent(serializerFn.Invoke(this, provider), Model, null, provider, CapabilityEndpoints.ImageEdit) 
+			: new TornadoRequestContent(string.Empty, Model, null, provider, CapabilityEndpoints.ImageEdit);
+	}
+	
+	private static readonly FrozenDictionary<LLmProviders, Func<ImageEditRequest, IEndpointProvider, string>> SerializeMap = new Dictionary<LLmProviders, Func<ImageEditRequest, IEndpointProvider, string>>
+	{
+		{ LLmProviders.XAi, (x, y) => JsonConvert.SerializeObject(new VendorXAiImageEditRequest(x, y), EndpointBase.NullSettings) }
+	}.ToFrozenDictionary();
 }
