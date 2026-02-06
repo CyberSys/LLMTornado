@@ -51,6 +51,59 @@ public partial class ChatDemo : DemoBase
     }
     
     [TornadoTest]
+    public static async Task ZaiInterleavedThinking()
+    {
+        Conversation chat = Program.Connect().Chat.CreateConversation(new ChatRequest
+        {
+            Model = ChatModel.Zai.Glm.Glm47,
+            Messages = [
+                new ChatMessage(ChatMessageRoles.System, "You are a helpful assistant."),
+                new ChatMessage(ChatMessageRoles.User, "Think of a random secret number between 1000 and 9999 in your reasoning, then call the confirm_ready tool to confirm you are ready. After the tool responds, tell me the secret number you chose.")
+            ],
+            Tools = [
+                new Tool(new ToolFunction("confirm_ready", "Confirm that you have chosen a secret number and are ready to proceed", new
+                {
+                    type = "object",
+                    properties = new
+                    {
+                        message = new { type = "string", description = "A confirmation message" }
+                    },
+                    required = new[] { "message" }
+                }))
+            ],
+            ReasoningEffort = ChatReasoningEfforts.Default,
+            VendorExtensions = new ChatRequestVendorExtensions(new ChatRequestVendorZaiExtensions
+            {
+                Thinking = new ChatRequestVendorZaiThinking
+                {
+                    Type = ChatRequestVendorZaiThinkingType.Enabled,
+                    ClearThinking = false // Preserved Thinking: reasoning_content is sent back to the API
+                }
+            })
+        });
+
+        // Round 1: model reasons (picks a number) and calls the tool
+        ChatRichResponse response = await chat.GetResponseRich(calls =>
+        {
+            calls.ForEach(x => x.Result = new FunctionResult(x, "Confirmed. Now tell the user your secret number.", null));
+            return ValueTask.CompletedTask;
+        });
+        
+        ChatMessage? assistantMsg = chat.Messages.FirstOrDefault(m => m.Role == ChatMessageRoles.Assistant);
+        Console.WriteLine($"Assistant reasoning preserved: {!string.IsNullOrWhiteSpace(assistantMsg?.ReasoningContent)}");
+        
+        TornadoRequestContent serialized = chat.Serialize();
+        string body = serialized.Body.ToString()!;
+        bool containsReasoningContent = body.Contains("reasoning_content");
+        Console.WriteLine($"Serialized request contains reasoning_content: {containsReasoningContent}");
+        
+        response = await chat.GetResponseRich();
+
+        Console.WriteLine($"ZAi Interleaved Thinking response: {response.Text}");
+        Console.WriteLine($"Usage: {response.Usage}");
+    }
+
+    [TornadoTest]
     public static async Task MistralMagistralReasoning()
     {
         Conversation chat = Program.Connect().Chat.CreateConversation(new ChatRequest

@@ -13,7 +13,9 @@ public class ChatMessageReasoningData
     public string? Content { get; set; }
     
     /// <summary>
-    /// Crypto token used to verify COT hasn't been tampered with. Used only by Anthropic and Google.
+    /// Opaque token used to verify or rehydrate reasoning content. 
+    /// For Anthropic this is the "signature" on thinking blocks, for Google the "thoughtSignature", 
+    /// and for xAI the "encrypted_content" used for thinking trace rehydration.
     /// </summary>
     public string? Signature { get; set; }
 
@@ -22,9 +24,9 @@ public class ChatMessageReasoningData
     /// </summary>
     public bool? IsRedacted => Provider switch
     {
-        LLmProviders.XAi => false,
-        not LLmProviders.Anthropic => null,
-        _ => Signature is not null && Content is null
+        LLmProviders.XAi => Signature is not null && Content is null,
+        LLmProviders.Anthropic => Signature is not null && Content is null,
+        _ => null
     };
     
     internal LLmProviders Provider { get; set; }

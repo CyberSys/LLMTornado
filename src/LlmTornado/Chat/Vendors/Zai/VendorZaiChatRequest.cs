@@ -47,6 +47,11 @@ internal class VendorZaiChatRequest
             {
                 ExtendedRequest.ToolStream = extensions.ToolStream;
             }
+
+            if (extensions.Thinking is not null)
+            {
+                ExtendedRequest.Thinking = extensions.Thinking;
+            }
         }
         else
         {

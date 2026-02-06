@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -153,10 +153,17 @@ public class ChatMessage
     public Guid Id { get; internal set; }
 
     /// <summary>
-    ///		Reasoning content, currently used only by Grok 3 and newer.
+    ///		Reasoning content, used by xAI (Grok 3+), DeepSeek, and Z.ai (GLM-4.5+).
     /// </summary>
     [JsonProperty("reasoning_content")]
     public string? ReasoningContent { get; set; }
+    
+    /// <summary>
+    ///		Encrypted reasoning content for thinking trace rehydration. Used by xAI as an alternative to raw reasoning_content.
+    ///		This is harmonized with Anthropic's signature and Google's thoughtSignature via <see cref="ChatMessageReasoningData.Signature"/>.
+    /// </summary>
+    [JsonProperty("encrypted_content")]
+    internal string? EncryptedContent { get; set; }
     
     /// <summary>
     ///     Optional field tool calls

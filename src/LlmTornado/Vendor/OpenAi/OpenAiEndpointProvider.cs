@@ -262,6 +262,7 @@ public class OpenAiEndpointProvider : BaseEndpointProvider, IEndpointProvider, I
         ChatMessage? toolsMessage = null;
         StringBuilder? plaintextBuilder = null;
         StringBuilder? reasoningBuilder = null;
+        string? encryptedContent = null;
         ChatUsage? usage = null;
         ChatMessageFinishReasons finishReason = ChatMessageFinishReasons.Unknown;
         string? stopReason = null;
@@ -400,6 +401,11 @@ public class OpenAiEndpointProvider : BaseEndpointProvider, IEndpointProvider, I
                         reasoningBuilder ??= new StringBuilder();
                         reasoningBuilder.Append(choice.Delta.ReasoningTokens);
                     }
+                    
+                    if (choice.Delta.EncryptedContent is not null)
+                    {
+                        encryptedContent = choice.Delta.EncryptedContent;
+                    }
 
                     if (choice.Delta.Content is not null)
                     {
@@ -479,7 +485,8 @@ public class OpenAiEndpointProvider : BaseEndpointProvider, IEndpointProvider, I
             ChatMessage delta = new ChatMessage
             {
                 Content = accuPlaintext,
-                ReasoningContent = reasoningPlaintext
+                ReasoningContent = reasoningPlaintext,
+                EncryptedContent = encryptedContent
             };
             
             // For xAI, create Parts with reasoning part to harmonize with other providers
@@ -498,6 +505,7 @@ public class OpenAiEndpointProvider : BaseEndpointProvider, IEndpointProvider, I
                 delta.Parts.Add(new ChatMessagePart(new ChatMessageReasoningData
                 {
                     Content = reasoningPlaintext,
+                    Signature = encryptedContent,
                     Provider = Provider
                 }));
             }

@@ -104,6 +104,21 @@ internal class VendorXAiChatRequest
                     }).ToList()
                 };
             }
+            
+            if (extensions.UseEncryptedContent is not null)
+            {
+                ExtendedRequest.UseEncryptedContent = extensions.UseEncryptedContent;
+            }
+            
+            if (extensions.PreviousResponseId is not null)
+            {
+                ExtendedRequest.PreviousResponseId = extensions.PreviousResponseId;
+            }
+        }
+        else if (request.Store is not null)
+        {
+            // Store needs remapping even without vendor extensions
+            ExtendedRequest = new VendorXAiChatRequestData(request);
         }
         else
         {
@@ -116,10 +131,39 @@ internal class VendorXAiChatRequest
 /// <summary>
 /// https://docs.x.ai/docs/api-reference#chat-completions
 /// </summary>
-internal class VendorXAiChatRequestData(ChatRequest request) : ChatRequest(request)
+internal class VendorXAiChatRequestData : ChatRequest
 {
     [JsonProperty("search_parameters")]
     internal VendorXAiChatRequestDataSearchParameters? SearchParameters { get; set; }
+    
+    /// <summary>
+    /// Whether to store request and responses. Maps from <see cref="ChatRequest.Store"/>.
+    /// xAI uses "store_messages" instead of OpenAI's "store".
+    /// </summary>
+    [JsonProperty("store_messages")]
+    internal bool? StoreMessages { get; set; }
+    
+    /// <summary>
+    /// Whether to use encrypted thinking for thinking trace rehydration.
+    /// </summary>
+    [JsonProperty("use_encrypted_content")]
+    internal bool? UseEncryptedContent { get; set; }
+    
+    /// <summary>
+    /// Previous response id. The messages from this response must be chained.
+    /// </summary>
+    [JsonProperty("previous_response_id")]
+    internal string? PreviousResponseId { get; set; }
+    
+    public VendorXAiChatRequestData(ChatRequest request) : base(request)
+    {
+        // Map Store -> store_messages (xAI uses a different field name)
+        if (request.Store is not null)
+        {
+            StoreMessages = request.Store;
+            Store = null;
+        }
+    }
 }
 
 internal class VendorXAiChatRequestDataSearchParameters

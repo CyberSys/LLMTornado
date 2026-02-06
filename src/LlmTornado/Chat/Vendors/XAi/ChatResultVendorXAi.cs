@@ -46,12 +46,13 @@ internal class ChatResultVendorXAi : ChatResult
                             }
                         }
                         
-                        // Add reasoning part
+                        // Add reasoning part, folding encrypted_content into the harmonized Signature field
                         if (!choice.Message.Parts.Any(p => p.Type == ChatMessageTypes.Reasoning))
                         {
                             choice.Message.Parts.Add(new ChatMessagePart(new ChatMessageReasoningData
                             {
                                 Content  = choice.Message.ReasoningTokens,
+                                Signature = choice.Message.EncryptedContent,
                                 Provider = LLmProviders.XAi
                             }));
                         }

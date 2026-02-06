@@ -157,8 +157,8 @@ public class ChatRequest : IModelRequest, ISerializableRequest, IHeaderProvider
 	public Dictionary<string, string>? Metadata { get; set; }
 	
 	/// <summary>
-	///		Whether to store the output of this chat completion request for use in our model distillation or evals products.
-	///		Currently only works with OpenAI models.
+	///		Whether to store the output of this chat completion request for use in model distillation, evals, or later retrieval.
+	///		Supported by OpenAI (as "store") and xAI (mapped to "store_messages"). Defaults to false for xAI.
 	/// </summary>
 	[JsonProperty("store")]
 	public bool? Store { get; set; }
@@ -419,7 +419,7 @@ public class ChatRequest : IModelRequest, ISerializableRequest, IHeaderProvider
 
 	/// <summary>
 	///     Parallel function calling can be disabled / enabled for vendors supporting the feature.
-	///		As of 6/24, the only vendor supporting the feature is OpenAI.
+	///		Supported by OpenAI and xAI. When set to false, the model will perform at most one tool call per response.
 	/// </summary>
 	[JsonProperty("parallel_tool_calls")]
 	public bool? ParallelToolCalls { get; set; }
@@ -929,6 +929,19 @@ public class ChatRequest : IModelRequest, ISerializableRequest, IHeaderProvider
     
     internal class ChatMessageRequestMessagesJsonConverter : JsonConverter<IList<ChatMessage>?>
     {
+        /// <summary>
+        /// Providers that support the reasoning_content field on assistant messages.
+        /// </summary>
+        private static readonly HashSet<LLmProviders> ReasoningContentProviders =
+        [
+            LLmProviders.Zai,
+            LLmProviders.DeepSeek,
+            LLmProviders.XAi,
+            LLmProviders.OpenRouter,
+            LLmProviders.Requesty,
+            LLmProviders.DeepInfra
+        ];
+        
         public override void WriteJson(JsonWriter writer, IList<ChatMessage>? value, JsonSerializer serializer)
         {
             if (value is null)
@@ -1070,6 +1083,24 @@ public class ChatRequest : IModelRequest, ISerializableRequest, IHeaderProvider
 			                }
 
 			                break;
+		                }
+	                }
+                }
+
+                if (msg.Role is ChatMessageRoles.Assistant && !string.IsNullOrWhiteSpace(msg.ReasoningContent) && request?.Model is not null && ReasoningContentProviders.Contains(request.Model.Provider))
+                {
+	                writer.WritePropertyName("reasoning_content");
+	                writer.WriteValue(msg.ReasoningContent);
+	                
+	                // Write encrypted_content for xAI (harmonized with Anthropic's signature / Google's thoughtSignature)
+	                if (request.Model.Provider is LLmProviders.XAi)
+	                {
+		                string? encryptedContent = msg.EncryptedContent ?? msg.Parts?.FirstOrDefault(p => p.Type == ChatMessageTypes.Reasoning)?.Reasoning?.Signature;
+		                
+		                if (!string.IsNullOrWhiteSpace(encryptedContent))
+		                {
+			                writer.WritePropertyName("encrypted_content");
+			                writer.WriteValue(encryptedContent);
 		                }
 	                }
                 }

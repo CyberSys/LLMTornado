@@ -30,5 +30,12 @@ public class ChatRequestVendorZaiExtensions
     /// Built-in tools supported by ZAI.
     /// </summary>
     public List<IVendorZaiChatRequestBuiltInTool>? BuiltInTools { get; set; }
+    
+    /// <summary>
+    /// Thinking configuration. When set, overrides the thinking settings derived from <see cref="ChatRequest.ReasoningEffort"/>
+    /// and <see cref="ChatRequest.ReasoningBudget"/>. Use this to control advanced features such as Preserved Thinking
+    /// (<see cref="ChatRequestVendorZaiThinking.ClearThinking"/> set to false).
+    /// </summary>
+    public ChatRequestVendorZaiThinking? Thinking { get; set; }
 }
 

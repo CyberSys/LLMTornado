@@ -13,6 +13,20 @@ public class ChatRequestVendorXAiExtensions
     /// Set the parameters to be used for searched data. If not set, no data will be acquired by the model.
     /// </summary>
     public ChatRequestVendorXAiExtensionsSearchParameters? SearchParameters { get; set; }
+    
+    /// <summary>
+    /// Whether to use encrypted thinking for thinking trace rehydration. When enabled, the model returns
+    /// an encrypted version of its reasoning that can be sent back in subsequent requests to maintain
+    /// reasoning context without exposing the raw reasoning text. This is xAI's equivalent of Anthropic's
+    /// signature-based COT verification.
+    /// </summary>
+    public bool? UseEncryptedContent { get; set; }
+    
+    /// <summary>
+    /// Previous response id. Use this to chain responses and create multi-turn conversations
+    /// where xAI manages the conversation history. The messages from the previous response must be chained.
+    /// </summary>
+    public string? PreviousResponseId { get; set; }
 }
 
 /// <summary>

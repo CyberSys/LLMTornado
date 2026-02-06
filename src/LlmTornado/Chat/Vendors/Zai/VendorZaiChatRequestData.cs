@@ -167,7 +167,16 @@ public class ChatRequestVendorZaiThinking
     /// <summary>
     /// Whether to enable the chain of thought.
     /// </summary>
+    [JsonProperty("type")]
     public ChatRequestVendorZaiThinkingType Type { get; set; } = ChatRequestVendorZaiThinkingType.Enabled;
+    
+    /// <summary>
+    /// When set to false, enables "Preserved Thinking" mode. The model retains reasoning content from previous assistant turns,
+    /// preserving reasoning continuity and improving performance. When enabled, you must return the complete, unmodified reasoning_content
+    /// back to the API. Defaults to null (not sent, meaning the API uses its default behavior).
+    /// </summary>
+    [JsonProperty("clear_thinking")]
+    public bool? ClearThinking { get; set; }
 }
 
 /// <summary>
