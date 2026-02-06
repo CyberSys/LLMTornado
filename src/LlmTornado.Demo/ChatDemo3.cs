@@ -931,4 +931,307 @@ public partial class ChatDemo : DemoBase
         RestDataOrException<ChatRichResponse> response = await conversation.GetResponseRichSafe();
         Console.WriteLine(response.Data);
     }
+    
+    // ===== Claude Opus 4.6 Specific Features =====
+    
+    [TornadoTest]
+    public static async Task ClaudeOpus46Basic()
+    {
+        await BasicChat(ChatModel.Anthropic.Claude46.Opus);
+    }
+    
+    [TornadoTest]
+    public static async Task ClaudeOpus46AdaptiveThinking()
+    {
+        // Adaptive thinking is the recommended thinking mode for Opus 4.6.
+        // Claude dynamically decides when and how much to think.
+        // Harmonized path: ReasoningBudget = -1 maps to thinking: {type: "adaptive"}
+        Conversation chat = Program.Connect().Chat.CreateConversation(new ChatRequest
+        {
+            Model = ChatModel.Anthropic.Claude46.Opus,
+            ReasoningBudget = -1, // Adaptive thinking
+            Messages = [
+                new ChatMessage(ChatMessageRoles.User, "What are the key differences between TCP and UDP? Keep it brief.")
+            ]
+        });
+
+        ChatRichResponse response = await chat.GetResponseRich();
+        
+        Console.WriteLine("Claude Opus 4.6 Adaptive Thinking (harmonized):");
+        Console.WriteLine(response.Text);
+        Console.WriteLine($"Usage: {response.Usage?.TotalTokens} tokens");
+    }
+    
+    [TornadoTest]
+    public static async Task ClaudeOpus46AdaptiveThinkingVendor()
+    {
+        // Vendor-specific path: AnthropicThinkingSettings.Adaptive = true
+        Conversation chat = Program.Connect().Chat.CreateConversation(new ChatRequest
+        {
+            Model = ChatModel.Anthropic.Claude46.Opus,
+            Messages = [
+                new ChatMessage(ChatMessageRoles.User, "Explain the halting problem in one paragraph.")
+            ],
+            VendorExtensions = new ChatRequestVendorExtensions
+            {
+                Anthropic = new ChatRequestVendorAnthropicExtensions
+                {
+                    Thinking = new AnthropicThinkingSettings { Adaptive = true }
+                }
+            }
+        });
+
+        ChatRichResponse response = await chat.GetResponseRich();
+        
+        Console.WriteLine("Claude Opus 4.6 Adaptive Thinking (vendor-specific):");
+        Console.WriteLine(response.Text);
+        Console.WriteLine($"Usage: {response.Usage?.TotalTokens} tokens");
+    }
+    
+    [TornadoTest]
+    public static async Task ClaudeOpus46EffortLevels()
+    {
+        // Effort parameter is GA on Opus 4.6. "max" level is exclusive to Opus 4.6.
+        TornadoApi api = Program.Connect();
+        ChatReasoningEfforts[] efforts = [ChatReasoningEfforts.Low, ChatReasoningEfforts.Medium, ChatReasoningEfforts.High, ChatReasoningEfforts.Max];
+
+        foreach (ChatReasoningEfforts effort in efforts)
+        {
+            Console.WriteLine($"\n--- Effort: {effort} ---");
+            Conversation chat = api.Chat.CreateConversation(new ChatRequest
+            {
+                Model = ChatModel.Anthropic.Claude46.Opus,
+                ReasoningBudget = -1, // Adaptive thinking
+                ReasoningEffort = effort,
+                Messages = [
+                    new ChatMessage(ChatMessageRoles.User, "What is 17 * 23?")
+                ]
+            });
+
+            ChatRichResponse response = await chat.GetResponseRich();
+            Console.WriteLine($"Response: {response.Text}");
+            Console.WriteLine($"Usage: {response.Usage?.TotalTokens} tokens");
+        }
+    }
+    
+    [TornadoTest]
+    public static async Task ClaudeOpus46AdaptiveThinkingStreaming()
+    {
+        // Streaming with adaptive thinking. Interleaved thinking is automatic.
+        Conversation chat = Program.Connect().Chat.CreateConversation(new ChatRequest
+        {
+            Model = ChatModel.Anthropic.Claude46.Opus,
+            ReasoningBudget = -1,
+            Messages = [
+                new ChatMessage(ChatMessageRoles.User, "Solve step-by-step: If a train travels 120 miles in 2 hours, and another train travels 180 miles in 3 hours, which train is faster?")
+            ]
+        });
+
+        Console.WriteLine("Claude Opus 4.6 Adaptive Thinking (streaming):");
+        
+        await chat.StreamResponseRich(new ChatStreamEventHandler
+        {
+            ReasoningTokenHandler = (reasoning) =>
+            {
+                Console.ForegroundColor = ConsoleColor.DarkGray;
+                Console.Write(reasoning.Content);
+                Console.ResetColor();
+                return ValueTask.CompletedTask;
+            },
+            MessageTokenExHandler = (token) =>
+            {
+                if (token.Index is 0)
+                {
+                    Console.WriteLine();
+                    Console.WriteLine("Response:");
+                }
+                
+                Console.Write(token);
+                return ValueTask.CompletedTask;
+            },
+            BlockFinishedHandler = (block) =>
+            {
+                Console.WriteLine();
+                return ValueTask.CompletedTask;
+            }
+        });
+    }
+    
+    [TornadoTest]
+    public static async Task ClaudeOpus46ToolUseWithEffort()
+    {
+        // Tool use with effort + adaptive thinking
+        Tool weatherTool = new Tool(new ToolFunction("get_weather", "Get current weather for a city", new
+        {
+            type = "object",
+            properties = new
+            {
+                city = new { type = "string", description = "City name" }
+            },
+            required = new[] { "city" }
+        }));
+        
+        Conversation chat = Program.Connect().Chat.CreateConversation(new ChatRequest
+        {
+            Model = ChatModel.Anthropic.Claude46.Opus,
+            ReasoningBudget = -1,
+            ReasoningEffort = ChatReasoningEfforts.Medium,
+            Messages = [
+                new ChatMessage(ChatMessageRoles.User, "What's the weather in Prague?")
+            ],
+            Tools = [weatherTool]
+        });
+
+        ChatRichResponse response = await chat.GetResponseRich(calls =>
+        {
+            calls.ForEach(x => x.Result = new FunctionResult(x, new { temperature = 22, unit = "celsius", condition = "sunny" }));
+            return ValueTask.CompletedTask;
+        });
+        
+        Console.WriteLine("Claude Opus 4.6 Tool Use with Medium Effort:");
+        Console.WriteLine(response.Text);
+    }
+    
+    [TornadoTest]
+    public static async Task ClaudeOpus46EagerInputStreaming()
+    {
+        // Fine-grained tool streaming is GA. eager_input_streaming enables streaming
+        // of tool use parameter values without buffering or JSON validation.
+        Tool makeFileTool = new Tool(new ToolFunction("make_file", "Write text to a file", new
+        {
+            type = "object",
+            properties = new
+            {
+                filename = new { type = "string", description = "The filename to write text to" },
+                lines_of_text = new { type = "array", items = new { type = "string" }, description = "Lines of text to write" }
+            },
+            required = new[] { "filename", "lines_of_text" }
+        }))
+        {
+            EagerInputStreaming = true // Enable fine-grained tool streaming
+        };
+        
+        Conversation chat = Program.Connect().Chat.CreateConversation(new ChatRequest
+        {
+            Model = ChatModel.Anthropic.Claude46.Opus,
+            Messages = [
+                new ChatMessage(ChatMessageRoles.User, "Write a short 4-line poem about coding and save it to poem.txt")
+            ],
+            Tools = [makeFileTool]
+        });
+
+        ChatRichResponse response = await chat.GetResponseRich(calls =>
+        {
+            foreach (FunctionCall call in calls)
+            {
+                Console.WriteLine($"Tool called: {call.Name}");
+                Console.WriteLine($"Arguments: {call.Arguments}");
+                call.Result = new FunctionResult(call, new { success = true });
+            }
+            return ValueTask.CompletedTask;
+        });
+        
+        Console.WriteLine("Claude Opus 4.6 Eager Input Streaming:");
+        Console.WriteLine(response.Text);
+    }
+    
+    [TornadoTest]
+    public static async Task ClaudeOpus46InferenceGeo()
+    {
+        // Data residency: US-only inference at 1.1x pricing
+        Conversation chat = Program.Connect().Chat.CreateConversation(new ChatRequest
+        {
+            Model = ChatModel.Anthropic.Claude46.Opus,
+            Messages = [
+                new ChatMessage(ChatMessageRoles.User, "What is 2+2?")
+            ],
+            VendorExtensions = new ChatRequestVendorExtensions
+            {
+                Anthropic = new ChatRequestVendorAnthropicExtensions
+                {
+                    InferenceGeo = AnthropicInferenceGeoOptions.Us
+                }
+            }
+        });
+
+        ChatRichResponse response = await chat.GetResponseRich();
+        
+        Console.WriteLine("Claude Opus 4.6 with US-only Inference:");
+        Console.WriteLine(response.Text);
+        Console.WriteLine($"Usage: {response.Usage?.TotalTokens} tokens");
+    }
+    
+    [TornadoTest]
+    public static async Task ClaudeOpus46Compaction()
+    {
+        // Compaction API (beta): server-side context summarization for long conversations.
+        // When context approaches the configured threshold, the API automatically summarizes.
+        Conversation chat = Program.Connect().Chat.CreateConversation(new ChatRequest
+        {
+            Model = ChatModel.Anthropic.Claude46.Opus,
+            Messages = [
+                new ChatMessage(ChatMessageRoles.User, "Help me plan a web application architecture. Start with the database layer.")
+            ],
+            VendorExtensions = new ChatRequestVendorExtensions
+            {
+                Anthropic = new ChatRequestVendorAnthropicExtensions
+                {
+                    ContextManagement = AnthropicContextManagement.WithTrigger(100_000)
+                }
+            }
+        });
+
+        ChatRichResponse response = await chat.GetResponseRich();
+        
+        Console.WriteLine("Claude Opus 4.6 Compaction (turn 1):");
+        Console.WriteLine(response.Text?.Substring(0, Math.Min(200, response.Text?.Length ?? 0)));
+        Console.WriteLine("...");
+        
+        // Check if any compaction blocks were returned
+        foreach (ChatRichResponseBlock block in response.Blocks)
+        {
+            Console.WriteLine($"Block type: {block.Type}");
+        }
+        
+        Console.WriteLine($"Stop reason: {response.FinishReason}");
+        Console.WriteLine($"Usage: {response.Usage?.TotalTokens} tokens");
+    }
+    
+    [TornadoTest]
+    public static async Task ClaudeOpus46CompactionWithPause()
+    {
+        // Compaction with pause_after_compaction: the API pauses after generating
+        // the compaction summary, letting you add content before it continues.
+        Conversation chat = Program.Connect().Chat.CreateConversation(new ChatRequest
+        {
+            Model = ChatModel.Anthropic.Claude46.Opus,
+            Messages = [
+                new ChatMessage(ChatMessageRoles.User, "Help me write a very detailed technical specification for a REST API.")
+            ],
+            VendorExtensions = new ChatRequestVendorExtensions
+            {
+                Anthropic = new ChatRequestVendorAnthropicExtensions
+                {
+                    ContextManagement = new AnthropicContextManagement
+                    {
+                        Edits = [
+                            new AnthropicCompactionEdit
+                            {
+                                Trigger = new AnthropicCompactionTrigger(50_000),
+                                PauseAfterCompaction = true,
+                                Instructions = "Focus on preserving API endpoint definitions, data models, and technical decisions."
+                            }
+                        ]
+                    }
+                }
+            }
+        });
+
+        ChatRichResponse response = await chat.GetResponseRich();
+        
+        Console.WriteLine("Claude Opus 4.6 Compaction with Pause:");
+        Console.WriteLine($"Stop reason: {response.FinishReason}");
+        Console.WriteLine(response.Text?.Substring(0, Math.Min(200, response.Text?.Length ?? 0)));
+        Console.WriteLine("...");
+    }
 }

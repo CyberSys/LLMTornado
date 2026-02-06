@@ -7,6 +7,7 @@ using LlmTornado.ChatFunctions;
 using LlmTornado.Code;
 using LlmTornado.Vendor.Anthropic;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Linq;
 
 namespace LlmTornado.Chat.Vendors.Anthropic;
@@ -263,6 +264,18 @@ public partial class VendorAnthropicChatRequestMessageContent
 
                                 writer.WriteValue(part.Reasoning.Signature);
                             }
+
+                            break;
+                        }
+                        case ChatMessageTypes.Compaction:
+                        {
+                            writer.WritePropertyName("type");
+                            writer.WriteValue("compaction");
+                            
+                            writer.WritePropertyName("content");
+                            writer.WriteValue(part.Text ?? string.Empty);
+                            
+                            SerializeCache(part);
 
                             break;
                         }
@@ -597,6 +610,13 @@ internal class VendorAnthropicChatRequest
     [JsonProperty("output_config")]
     public VendorAnthropicChatRequestOutputConfig? OutputConfig { get; set; }
     
+    [JsonProperty("context_management")]
+    public AnthropicContextManagement? ContextManagement { get; set; }
+    
+    [JsonProperty("inference_geo")]
+    [JsonConverter(typeof(StringEnumConverter))]
+    public AnthropicInferenceGeoOptions? InferenceGeo { get; set; }
+    
     public VendorAnthropicChatRequest(ChatRequest request, IEndpointProvider provider)
     {
         Model = request.Model?.Name ?? ChatModel.Anthropic.Claude4.Sonnet250514.Name;
@@ -698,7 +718,14 @@ internal class VendorAnthropicChatRequest
             };
         }
 
-        if (request.ReasoningBudget > 0)
+        if (request.ReasoningBudget is -1)
+        {
+            Thinking = new VendorAnthropicThinkingSettings
+            {
+                Type = "adaptive"
+            };
+        }
+        else if (request.ReasoningBudget > 0)
         {
             Thinking = new VendorAnthropicThinkingSettings
             {
@@ -717,7 +744,14 @@ internal class VendorAnthropicChatRequest
             
             if (request.VendorExtensions.Anthropic.Thinking is not null)
             {
-                if (request.VendorExtensions.Anthropic.Thinking.Enabled)
+                if (request.VendorExtensions.Anthropic.Thinking.Adaptive)
+                {
+                    Thinking = new VendorAnthropicThinkingSettings
+                    {
+                        Type = "adaptive"
+                    };
+                }
+                else if (request.VendorExtensions.Anthropic.Thinking.Enabled)
                 {
                     Thinking = new VendorAnthropicThinkingSettings
                     {
@@ -743,15 +777,29 @@ internal class VendorAnthropicChatRequest
             {
                 McpServers = request.VendorExtensions.Anthropic.McpServers.ToArray();
             }
+            
+            // Add context management (compaction) if specified
+            if (request.VendorExtensions.Anthropic.ContextManagement is not null)
+            {
+                ContextManagement = request.VendorExtensions.Anthropic.ContextManagement;
+            }
+            
+            // Add inference geo (data residency) if specified
+            if (request.VendorExtensions.Anthropic.InferenceGeo is not null)
+            {
+                InferenceGeo = request.VendorExtensions.Anthropic.InferenceGeo;
+            }
 
             request.VendorExtensions.Anthropic.OutboundRequest?.Invoke(System, Messages.Select(x => x.Content).ToList(), Tools);
         }
         
-        // Handle effort parameter using harmonized ReasoningEffort (Claude Opus 4.5 only)
+        // Handle effort parameter using harmonized ReasoningEffort (Claude Opus 4.5+)
         if (request.ReasoningEffort is not null && IsEffortCompatibleModel(Model))
         {
             string? effortValue = request.ReasoningEffort switch
             {
+                ChatReasoningEfforts.XHigh => "max",
+                ChatReasoningEfforts.Max => "max",
                 ChatReasoningEfforts.High => "high",
                 ChatReasoningEfforts.Medium => "medium",
                 ChatReasoningEfforts.Low => "low",
@@ -773,8 +821,9 @@ internal class VendorAnthropicChatRequest
             return false;
         }
         
-        // Effort parameter is only supported by Claude Opus 4.5
-        return modelName.StartsWith("claude-opus-4-5", StringComparison.OrdinalIgnoreCase);
+        // Effort parameter is supported by Claude Opus 4.5+
+        return modelName.StartsWith("claude-opus-4-5", StringComparison.OrdinalIgnoreCase)
+            || modelName.StartsWith("claude-opus-4-6", StringComparison.OrdinalIgnoreCase);
     }
     
     private static bool IsExtendedThinkingModel(string? modelName)

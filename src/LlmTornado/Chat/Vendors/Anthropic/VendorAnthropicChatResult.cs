@@ -598,6 +598,24 @@ internal class VendorAnthropicChatResult : VendorChatResult
                     });
                     break;
                 }
+                case VendorAnthropicChatMessageTypes.Compaction:
+                {
+                    // Compaction block - server-generated summary of earlier conversation context
+                    string compactionContent = contentBlock.Content ?? string.Empty;
+                    
+                    ChatMessage compactionMsg = new ChatMessage(ChatMessageRoles.Assistant, 
+                        [ new ChatMessagePart { Type = ChatMessageTypes.Compaction, Text = compactionContent } ]);
+                    
+                    result.Choices.Add(new ChatChoice
+                    {
+                        FinishReason = ChatMessageFinishReasonsConverter.Map.GetValueOrDefault(StopReason, ChatMessageFinishReasons.Unknown),
+                        StopReason = StopSequence,
+                        Index = result.Choices.Count + 1,
+                        Message = compactionMsg,
+                        Delta = compactionMsg
+                    });
+                    break;
+                }
                 case VendorAnthropicChatMessageTypes.Unknown:
                 default:
                 {

@@ -885,6 +885,14 @@ public class Tool
     public bool? DeferLoading { get; set; }
     
     /// <summary>
+    /// When true, enables fine-grained tool streaming for this tool. Tool use parameter values
+    /// stream without buffering or JSON validation, reducing latency for large parameters.
+    /// GA on all models and platforms, no beta header required.
+    /// </summary>
+    [JsonIgnore]
+    public bool? EagerInputStreaming { get; set; }
+    
+    /// <summary>
     ///     Functionality supported only by certain providers.
     /// </summary>
     [JsonIgnore]

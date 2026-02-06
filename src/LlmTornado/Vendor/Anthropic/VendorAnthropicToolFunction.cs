@@ -27,6 +27,7 @@ public class VendorAnthropicToolFunction : IVendorAnthropicChatRequestTool
         Strict = tool.Strict;
         AllowedCallers = tool.AllowedCallers;
         DeferLoading = tool.DeferLoading;
+        EagerInputStreaming = tool.EagerInputStreaming;
     }
 
     /// <summary>
@@ -154,6 +155,13 @@ public class VendorAnthropicToolFunction : IVendorAnthropicChatRequestTool
     /// </summary>
     [JsonProperty("defer_loading")]
     public bool? DeferLoading { get; set; }
+    
+    /// <summary>
+    /// When true, enables fine-grained tool streaming for this tool. Tool use parameter values
+    /// stream without buffering or JSON validation, reducing latency for large parameters.
+    /// </summary>
+    [JsonProperty("eager_input_streaming")]
+    public bool? EagerInputStreaming { get; set; }
 }
 
 /// <summary>

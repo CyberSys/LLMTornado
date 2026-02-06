@@ -86,13 +86,22 @@ public class AnthropicThinkingSettings
     /// <summary>
     /// The budget_tokens parameter determines the maximum number of tokens Claude is allowed use for its internal reasoning process. Larger budgets can improve response quality by enabling more thorough analysis for complex problems, although Claude may not use the entire budget allocated, especially at ranges above 32K.
     /// <br/><b>Note: budget_tokens must always be less than the max_tokens specified.</b>
+    /// <br/><b>Deprecated on Claude 4.6+:</b> Use <see cref="Adaptive"/> with the effort parameter instead.
     /// </summary>
     public int? BudgetTokens { get; set; }
     
     /// <summary>
-    /// Whether thinking is enabled
+    /// Whether thinking is enabled with manual budget control (type: "enabled").
+    /// <br/><b>Deprecated on Claude 4.6+:</b> Use <see cref="Adaptive"/> instead.
     /// </summary>
     public bool Enabled { get; set; }
+    
+    /// <summary>
+    /// Whether adaptive thinking is enabled (type: "adaptive"). Recommended for Claude 4.6+.
+    /// Claude dynamically decides when and how much to think. Use the effort parameter to control thinking depth.
+    /// When set to true, <see cref="BudgetTokens"/> and <see cref="Enabled"/> are ignored.
+    /// </summary>
+    public bool Adaptive { get; set; }
 }
 
 /// <summary>
@@ -193,6 +202,153 @@ public class AnthropicMcpConfiguration
 }
 
 /// <summary>
+/// Supported trigger types for compaction.
+/// </summary>
+[JsonConverter(typeof(StringEnumConverter))]
+public enum AnthropicCompactionTriggerTypes
+{
+    /// <summary>
+    /// Trigger compaction based on input token count.
+    /// </summary>
+    [EnumMember(Value = "input_tokens")]
+    InputTokens
+}
+
+/// <summary>
+/// Supported compaction edit types.
+/// </summary>
+[JsonConverter(typeof(StringEnumConverter))]
+public enum AnthropicCompactionEditTypes
+{
+    /// <summary>
+    /// Compact context using server-side summarization (version 2026-01-12).
+    /// </summary>
+    [EnumMember(Value = "compact_20260112")]
+    Compact20260112
+}
+
+/// <summary>
+/// Supported inference geographic regions for data residency controls.
+/// </summary>
+[JsonConverter(typeof(StringEnumConverter))]
+public enum AnthropicInferenceGeoOptions
+{
+    /// <summary>
+    /// Global routing (default). Inference may run in any available geography for optimal performance and availability.
+    /// </summary>
+    [EnumMember(Value = "global")]
+    Global,
+    
+    /// <summary>
+    /// US-only inference. Priced at 1.1x on Claude Opus 4.6 and newer models.
+    /// </summary>
+    [EnumMember(Value = "us")]
+    Us
+}
+
+/// <summary>
+/// Trigger configuration for when compaction should activate.
+/// </summary>
+public class AnthropicCompactionTrigger
+{
+    /// <summary>
+    /// The type of trigger. Currently only <see cref="AnthropicCompactionTriggerTypes.InputTokens"/> is supported.
+    /// </summary>
+    [JsonProperty("type")]
+    public AnthropicCompactionTriggerTypes Type { get; set; } = AnthropicCompactionTriggerTypes.InputTokens;
+    
+    /// <summary>
+    /// The token count threshold at which compaction triggers. Must be at least 50,000.
+    /// Default is 150,000 tokens.
+    /// </summary>
+    [JsonProperty("value")]
+    public int Value { get; set; } = 150_000;
+    
+    /// <summary>
+    /// Creates a trigger based on input token count.
+    /// </summary>
+    /// <param name="tokenThreshold">Token count threshold (minimum 50,000).</param>
+    public AnthropicCompactionTrigger(int tokenThreshold)
+    {
+        Value = tokenThreshold;
+    }
+    
+    /// <summary>
+    /// Creates a trigger with default threshold (150,000 tokens).
+    /// </summary>
+    public AnthropicCompactionTrigger()
+    {
+    }
+}
+
+/// <summary>
+/// A compaction edit entry for automatic context summarization.
+/// </summary>
+public class AnthropicCompactionEdit
+{
+    /// <summary>
+    /// The type of edit. Currently only <see cref="AnthropicCompactionEditTypes.Compact20260112"/> is supported.
+    /// </summary>
+    [JsonProperty("type")]
+    public AnthropicCompactionEditTypes Type { get; set; } = AnthropicCompactionEditTypes.Compact20260112;
+    
+    /// <summary>
+    /// When to trigger compaction. Defaults to 150,000 tokens if not set.
+    /// </summary>
+    [JsonProperty("trigger")]
+    public AnthropicCompactionTrigger? Trigger { get; set; }
+    
+    /// <summary>
+    /// Whether to pause after generating the compaction summary, returning a response with the "compaction" stop reason.
+    /// This allows you to add additional content blocks before the API continues.
+    /// </summary>
+    [JsonProperty("pause_after_compaction")]
+    public bool? PauseAfterCompaction { get; set; }
+    
+    /// <summary>
+    /// Custom summarization instructions. Completely replaces the default summarization prompt when provided.
+    /// </summary>
+    [JsonProperty("instructions")]
+    public string? Instructions { get; set; }
+}
+
+/// <summary>
+/// Context management configuration for server-side compaction.
+/// Enables effectively infinite conversations by automatically summarizing older context.
+/// </summary>
+public class AnthropicContextManagement
+{
+    /// <summary>
+    /// List of context management edits to apply.
+    /// </summary>
+    [JsonProperty("edits")]
+    public List<AnthropicCompactionEdit> Edits { get; set; } = [];
+    
+    /// <summary>
+    /// Creates a context management configuration with a default compaction edit.
+    /// </summary>
+    public static AnthropicContextManagement Default()
+    {
+        return new AnthropicContextManagement
+        {
+            Edits = [new AnthropicCompactionEdit()]
+        };
+    }
+    
+    /// <summary>
+    /// Creates a context management configuration with a custom token threshold trigger.
+    /// </summary>
+    /// <param name="tokenThreshold">Token count threshold for triggering compaction (minimum 50,000).</param>
+    public static AnthropicContextManagement WithTrigger(int tokenThreshold)
+    {
+        return new AnthropicContextManagement
+        {
+            Edits = [new AnthropicCompactionEdit { Trigger = new AnthropicCompactionTrigger(tokenThreshold) }]
+        };
+    }
+}
+
+/// <summary>
 ///     Chat features supported only by Anthropic.
 /// </summary>
 public class ChatRequestVendorAnthropicExtensions
@@ -224,5 +380,18 @@ public class ChatRequestVendorAnthropicExtensions
     /// List of MCP servers to be utilized in this request. (Max length 20)
     /// </summary>
     public List<AnthropicMcpServer>? McpServers { get; set; }
-
+    
+    /// <summary>
+    /// Server-side context management configuration for automatic compaction.
+    /// Enables effectively infinite conversations by summarizing older context when approaching window limits.
+    /// Requires the compact-2026-01-12 beta header (added automatically).
+    /// Available on Claude Opus 4.6 only.
+    /// </summary>
+    public AnthropicContextManagement? ContextManagement { get; set; }
+    
+    /// <summary>
+    /// Controls where model inference runs for this request.
+    /// Available on Claude Opus 4.6 and newer models only.
+    /// </summary>
+    public AnthropicInferenceGeoOptions? InferenceGeo { get; set; }
 }

@@ -345,7 +345,11 @@ internal class ChatMessageFinishReasonsConverter : JsonConverter<ChatMessageFini
         { "model_context_window_exceeded", ChatMessageFinishReasons.ContextWindowExceeded },
         
         { "user_cancel", ChatMessageFinishReasons.Cancel },
-        { "abort", ChatMessageFinishReasons.Cancel }
+        { "abort", ChatMessageFinishReasons.Cancel },
+        
+        { "refusal", ChatMessageFinishReasons.Refusal },
+        
+        { "compaction", ChatMessageFinishReasons.Compaction }
     }.ToFrozenDictionary();
     
     /// <summary>
@@ -459,7 +463,18 @@ public enum ChatMessageFinishReasons
     /// <summary>
     /// Prompt was blocked due to safety reasons.
     /// </summary>
-    Safety
+    Safety,
+    
+    /// <summary>
+    /// The model refused to complete the request. Handle appropriately in your application.
+    /// </summary>
+    Refusal,
+    
+    /// <summary>
+    /// Compaction was triggered and the API paused after generating the compaction summary.
+    /// Only returned when pause_after_compaction is enabled. Anthropic-specific.
+    /// </summary>
+    Compaction
 }
 
 /// <summary>
@@ -756,6 +771,13 @@ public enum ChatReasoningEfforts
     /// </summary>
     [EnumMember(Value = "xhigh")]
     XHigh,
+    
+    /// <summary>
+    ///     Maximum reasoning with no constraints on token spending. Available for Claude Opus 4.6 only.
+    ///     Requests using max on other models will return an error.
+    /// </summary>
+    [EnumMember(Value = "max")]
+    Max,
     
     /// <summary>
     ///     Enable reasoning. Supported only by Groq.

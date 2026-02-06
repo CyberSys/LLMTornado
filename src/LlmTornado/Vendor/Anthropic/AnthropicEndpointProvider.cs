@@ -89,7 +89,8 @@ public class AnthropicEndpointProvider : BaseEndpointProvider, IEndpointProvider
         Unknown,
         Text,
         ToolUse,
-        RedactedThinking
+        RedactedThinking,
+        Compaction
     }
 
     private class AnthropicStreamBlockStart
@@ -98,7 +99,8 @@ public class AnthropicEndpointProvider : BaseEndpointProvider, IEndpointProvider
         {
             { "text", AnthropicStreamBlockStartTypes.Text },
             { "tool_use", AnthropicStreamBlockStartTypes.ToolUse },
-            { "redacted_thinking", AnthropicStreamBlockStartTypes.RedactedThinking }
+            { "redacted_thinking", AnthropicStreamBlockStartTypes.RedactedThinking },
+            { "compaction", AnthropicStreamBlockStartTypes.Compaction }
         }.ToFrozenDictionary();
         
         public class AnthropicStreamBlockStartData
@@ -141,7 +143,8 @@ public class AnthropicEndpointProvider : BaseEndpointProvider, IEndpointProvider
         ThinkingDelta,
         SignatureDelta,
         InputJsonDelta,
-        CitationDelta
+        CitationDelta,
+        CompactionDelta
     }
 
     private class AnthropicStreamBlockDelta
@@ -152,7 +155,8 @@ public class AnthropicEndpointProvider : BaseEndpointProvider, IEndpointProvider
             { "citations_delta", AnthropicStreamBlockDeltaTypes.CitationDelta },
             { "thinking_delta", AnthropicStreamBlockDeltaTypes.ThinkingDelta },
             { "signature_delta", AnthropicStreamBlockDeltaTypes.SignatureDelta },
-            { "input_json_delta", AnthropicStreamBlockDeltaTypes.InputJsonDelta }
+            { "input_json_delta", AnthropicStreamBlockDeltaTypes.InputJsonDelta },
+            { "compaction_delta", AnthropicStreamBlockDeltaTypes.CompactionDelta }
         }.ToFrozenDictionary();
         
         public class AnthropicStreamBlockDeltaData
@@ -174,6 +178,9 @@ public class AnthropicEndpointProvider : BaseEndpointProvider, IEndpointProvider
             
             [JsonProperty("citation")]
             public IChatMessagePartCitation? Citation { get; set; }
+            
+            [JsonProperty("content")]
+            public string? Content { get; set; }
         }
         
         [JsonProperty("type")]
@@ -232,15 +239,40 @@ public class AnthropicEndpointProvider : BaseEndpointProvider, IEndpointProvider
             return false;
         }
         
-        // Effort parameter requires beta header (Claude Opus 4.5 only)
+        // Effort is GA on Claude 4.6+, no beta header needed
+        string? modelName = chatRequest.Model?.Name;
+        if (IsOpus46OrNewer(modelName))
+        {
+            return false;
+        }
+        
+        // Effort parameter requires beta header for older models (Claude Opus 4.5)
         if (chatRequest.ReasoningEffort is null)
         {
             return false;
         }
         
-        // Only add header if model supports effort
-        string? modelName = chatRequest.Model?.Name;
         return modelName?.StartsWith("claude-opus-4-5", StringComparison.OrdinalIgnoreCase) == true;
+    }
+    
+    private static bool RequiresCompactionHeader(object? data)
+    {
+        if (data is not ChatRequest chatRequest)
+        {
+            return false;
+        }
+        
+        return chatRequest.VendorExtensions?.Anthropic?.ContextManagement is not null;
+    }
+    
+    private static bool IsOpus46OrNewer(string? modelName)
+    {
+        if (modelName is null)
+        {
+            return false;
+        }
+        
+        return modelName.StartsWith("claude-opus-4-6", StringComparison.OrdinalIgnoreCase);
     }
     
     private static bool RequiresAdvancedToolUseHeader(object? data)
@@ -425,6 +457,11 @@ public class AnthropicEndpointProvider : BaseEndpointProvider, IEndpointProvider
                             };
                             break;
                         }
+                        case AnthropicStreamBlockStartTypes.Compaction:
+                        {
+                            // Compaction block start - content arrives via compaction_delta
+                            break;
+                        }
                     }
                     
                     break;
@@ -530,6 +567,30 @@ public class AnthropicEndpointProvider : BaseEndpointProvider, IEndpointProvider
                                                         Signature = accuThinking.VendorExtensions is ChatMessageVendorExtensionsAnthropic sigData ? sigData.Signature : null,
                                                         Provider = LLmProviders.Anthropic
                                                     }
+                                                }
+                                            ])
+                                        }
+                                    ]
+                                };
+
+                                break;
+                            }
+                            case AnthropicStreamBlockDeltaTypes.CompactionDelta:
+                            {
+                                // Compaction delta delivers the complete summary content in a single delta
+                                string compactionContent = res.Delta.Content ?? string.Empty;
+                                
+                                yield return new ChatResult
+                                {
+                                    Choices =
+                                    [
+                                        new ChatChoice
+                                        {
+                                            Delta = new ChatMessage(ChatMessageRoles.Assistant, [
+                                                new ChatMessagePart
+                                                {
+                                                    Type = ChatMessageTypes.Compaction,
+                                                    Text = compactionContent
                                                 }
                                             ])
                                         }
@@ -735,17 +796,31 @@ public class AnthropicEndpointProvider : BaseEndpointProvider, IEndpointProvider
         }
         else
         {
+            string? currentModel = (sourceObject as ChatRequest)?.Model?.Name;
+            bool isOpus46Plus = IsOpus46OrNewer(currentModel);
+            
             HashSet<string> betaHeaders = [
-                "interleaved-thinking-2025-05-14", 
                 "files-api-2025-04-14", 
                 "code-execution-2025-08-25", 
                 "search-results-2025-06-09"
             ];
             
-            // Add effort beta header if applicable (Claude Opus 4.5)
+            // Interleaved thinking header is deprecated on Opus 4.6+ (adaptive thinking auto-enables it)
+            if (!isOpus46Plus)
+            {
+                betaHeaders.Add("interleaved-thinking-2025-05-14");
+            }
+            
+            // Add effort beta header if applicable (Claude Opus 4.5 only; GA on 4.6+)
             if (RequiresEffortHeader(sourceObject))
             {
                 betaHeaders.Add("effort-2025-11-24");
+            }
+            
+            // Add compaction beta header if context management is configured
+            if (RequiresCompactionHeader(sourceObject))
+            {
+                betaHeaders.Add("compact-2026-01-12");
             }
             
             // Add advanced tool use beta header if applicable (programmatic tool calling, tool search)

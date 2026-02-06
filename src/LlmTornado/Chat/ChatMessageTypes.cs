@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using Newtonsoft.Json;
 
 namespace LlmTornado.Chat;
@@ -71,4 +71,11 @@ public enum ChatMessageTypes
     /// A reference block (e.g., list of reference ids).
     /// </summary>
     Reference,
+    
+    /// <summary>
+    /// A compaction block containing a server-generated summary of earlier conversation context.<br/>
+    /// Used by the compaction API to manage long conversations. Content before this block is discarded on subsequent requests.<br/>
+    /// <b>Supported only by Anthropic (Claude Opus 4.6+).</b>
+    /// </summary>
+    Compaction,
 }
